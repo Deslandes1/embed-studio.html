@@ -90,6 +90,7 @@
     .btn.secondary { background: #1e293b; color: #e2e8f0; }
     .btn.secondary:hover { box-shadow: 0 4px 14px rgba(30,41,59,0.5); }
     .btn.danger { background: #ff4757; color: #fff; }
+    .btn.share { background: #0d7a8c; color: #fff; }
     .mode-toggle {
         display: flex;
         gap: 8px;
@@ -230,6 +231,16 @@
         max-height: 160px;
         overflow: auto;
     }
+    .embed-share-url {
+        background: #071d33;
+        color: #f0d369;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 12px;
+        word-break: break-all;
+        border: 1px dashed #d4af37;
+    }
     .embed-actions {
         display: flex;
         gap: 8px;
@@ -263,91 +274,135 @@
         line-height: 1.6;
         padding: 0 4px;
     }
+    .share-page .embed-card { max-width: 800px; margin: 0 auto 20px; }
+    .share-banner {
+        text-align: center;
+        padding: 16px;
+        margin-bottom: 20px;
+        background: #071d33;
+        border: 1px solid #d4af37;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #f0d369;
+    }
 </style>
 </head>
 <body>
-<div class="container">
-    <h1>JARVIS Embed Studio</h1>
-    <p class="subtitle">Paste a link, or paste a full iframe/video/audio HTML block. Everything becomes an embeddable player you can use here or anywhere else.</p>
-
-    <div class="mode-toggle">
-        <button id="modeUrl" class="active" onclick="setMode('url')">🔗 Link</button>
-        <button id="modeCode" onclick="setMode('code')">&lt;/&gt; HTML code</button>
-    </div>
-
-    <div class="input-row" id="rowUrl">
-        <input id="urlInput" type="text" placeholder="Paste a YouTube, Vimeo, TikTok, MP4, MP3, PDF, or any link…">
-    </div>
-    <div class="input-row" id="rowCode" style="display:none;">
-        <textarea id="codeInput" placeholder='Paste a full iframe, video, audio, or img HTML block. Example:
-<iframe src="https://www.tiktok.com/player/v1/7698056345127374113" ...></iframe>'></textarea>
-    </div>
-
-    <div class="hint">
-        Tip: For TikTok, either paste the full TikTok iframe code, or paste a TikTok video link — the app converts it automatically to the TikTok player embed. TikTok embeds are region-restricted, so they may fail in some locations.
-    </div>
-
-    <div class="input-row">
-        <button class="btn" id="saveBtn" onclick="addLink()">Convert &amp; Save</button>
-    </div>
-
-    <div id="statusBox" class="status"></div>
-    <div id="embedList"></div>
-
-    <div class="footer-info">
-        Built by Gesner Deslandes (GlobalInternet.py)<br>
-        Phone: (509) 4738 5663 · Email: deslandes78@gmail.com<br>
-        <a href="https://deslandes1.github.io/jarvis-auto-apply./" target="_blank">JARVIS Auto-Apply</a> ·
-        <a href="https://deslandes1.github.io/G-COMMUNICATION-2026/" target="_blank">G JARVIS Portal</a> ·
-        <a href="https://globalinternetsitepy-abh7v6tnmskxxnuplrdcgk.streamlit.app/" target="_blank">Global Technology Site</a>
-    </div>
+<div class="container" id="appContainer">
+    <!-- Main app (rendered by JS) -->
 </div>
 
 <script type="module">
-    import { ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const wait = setInterval(() => {
         if (window._fb && window._fb.db) {
             clearInterval(wait);
-            init();
+            boot();
         }
     }, 100);
 
     let currentMode = 'url';
+    let isShareView = false;
+    let shareKey = null;
 
-    window.setMode = function(mode) {
-        currentMode = mode;
-        document.getElementById('modeUrl').classList.toggle('active', mode === 'url');
-        document.getElementById('modeCode').classList.toggle('active', mode === 'code');
-        document.getElementById('rowUrl').style.display = mode === 'url' ? 'flex' : 'none';
-        document.getElementById('rowCode').style.display = mode === 'code' ? 'flex' : 'none';
-    };
-
-    async function validateTikTok(url) {
-        try {
-            const res = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(url));
-            if (!res.ok) return { ok: false, reason: 'HTTP ' + res.status };
-            const data = await res.json();
-            if (data && data.html) return { ok: true };
-            return { ok: false, reason: 'No embed HTML returned (region-restricted or removed).' };
-        } catch (e) {
-            return { ok: false, reason: 'Network error: ' + (e.message || 'unknown') };
+    function boot() {
+        const params = new URLSearchParams(window.location.search);
+        shareKey = params.get('embed');
+        if (shareKey) {
+            isShareView = true;
+            renderShareView();
+        } else {
+            renderMainView();
+            initMainApp();
         }
     }
 
-    function init() {
+    function renderMainView() {
+        document.getElementById('appContainer').innerHTML = `
+            <h1>JARVIS Embed Studio</h1>
+            <p class="subtitle">Paste a link, or paste a full iframe/video/audio HTML block. Every saved embed gets its own shareable link.</p>
+
+            <div class="mode-toggle">
+                <button id="modeUrl" class="active" onclick="setMode('url')">🔗 Link</button>
+                <button id="modeCode" onclick="setMode('code')">&lt;/&gt; HTML code</button>
+            </div>
+
+            <div class="input-row" id="rowUrl">
+                <input id="urlInput" type="text" placeholder="Paste a YouTube, Vimeo, TikTok, MP4, MP3, PDF, or any link…">
+            </div>
+            <div class="input-row" id="rowCode" style="display:none;">
+                <textarea id="codeInput" placeholder='Paste a full iframe, video, audio, or img HTML block.'></textarea>
+            </div>
+
+            <div class="hint">
+                Tip: For TikTok, paste the full iframe code or a TikTok video link — the app converts it automatically. TikTok embeds are region-restricted and may fail in some locations.
+            </div>
+
+            <div class="input-row">
+                <button class="btn" id="saveBtn" onclick="addLink()">Convert &amp; Save</button>
+            </div>
+
+            <div id="statusBox" class="status"></div>
+            <div id="embedList"></div>
+
+            <div class="footer-info">
+                Built by Gesner Deslandes (GlobalInternet.py)<br>
+                Phone: (509) 4738 5663 · Email: deslandes78@gmail.com<br>
+                <a href="https://deslandes1.github.io/jarvis-auto-apply./" target="_blank">JARVIS Auto-Apply</a> ·
+                <a href="https://deslandes1.github.io/G-COMMUNICATION-2026/" target="_blank">G JARVIS Portal</a> ·
+                <a href="https://globalinternetsitepy-abh7v6tnmskxxnuplrdcgk.streamlit.app/" target="_blank">Global Technology Site</a>
+            </div>
+        `;
+    }
+
+    function renderShareView() {
+        document.getElementById('appContainer').innerHTML = `
+            <div class="share-page">
+                <h1>Shared Embed</h1>
+                <div class="share-banner">This embed was shared with you. Copy the code below to use it anywhere.</div>
+                <div id="shareEmbedArea"></div>
+                <div style="text-align:center;margin-top:20px;">
+                    <a class="btn secondary" href="./" style="text-decoration:none;display:inline-block;">← Back to Embed Studio</a>
+                </div>
+            </div>
+        `;
+        loadSharedEmbed(shareKey);
+    }
+
+    async function loadSharedEmbed(key) {
+        try {
+            const snap = await get(ref(window._fb.db, 'embed_studio/links/' + key));
+            const item = snap.val();
+            const area = document.getElementById('shareEmbedArea');
+            if (!item) {
+                area.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>This shared embed was not found. It may have been removed.</div>';
+                return;
+            }
+            area.innerHTML = renderCard(item, key, true);
+        } catch (e) {
+            document.getElementById('shareEmbedArea').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load this embed. Check the link or try again later.</div>';
+        }
+    }
+
+    function initMainApp() {
         const db = window._fb.db;
         const EMBEDS_PATH = 'embed_studio/links';
         const linksRef = ref(db, EMBEDS_PATH);
 
+        window.setMode = function(mode) {
+            currentMode = mode;
+            document.getElementById('modeUrl').classList.toggle('active', mode === 'url');
+            document.getElementById('modeCode').classList.toggle('active', mode === 'code');
+            document.getElementById('rowUrl').style.display = mode === 'url' ? 'flex' : 'none';
+            document.getElementById('rowCode').style.display = mode === 'code' ? 'flex' : 'none';
+        };
+
         window.addLink = async function() {
             const btn = document.getElementById('saveBtn');
-            let raw = '';
-            if (currentMode === 'url') {
-                raw = (document.getElementById('urlInput').value || '').trim();
-            } else {
-                raw = (document.getElementById('codeInput').value || '').trim();
-            }
+            let raw = currentMode === 'url'
+                ? (document.getElementById('urlInput').value || '').trim()
+                : (document.getElementById('codeInput').value || '').trim();
 
             if (!raw) return showStatus('Please paste a link or an HTML block first.', 'error');
 
@@ -361,27 +416,29 @@
                 btn.disabled = false;
                 btn.textContent = 'Convert & Save';
                 if (!check.ok) {
-                    showStatus(
-                        '❌ This TikTok video cannot be embedded (' + check.reason +
-                        '). TikTok blocks its player in some regions. Try a different video, or use a direct MP4 link.',
-                        'error'
-                    );
+                    showStatus('❌ This TikTok video cannot be embedded (' + check.reason + '). TikTok blocks its player in some regions. Try a direct MP4 link instead.', 'error');
                     return;
                 }
                 showStatus('TikTok video is embeddable — saving…', 'warning');
             }
 
-            push(linksRef, {
+            const newRef = push(linksRef);
+            const key = newRef.key;
+
+            const shareUrl = window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(key);
+
+            newRef.set({
                 url: info.url,
                 type: info.type,
                 embedUrl: info.embedUrl,
                 embedCode: info.embedCode,
                 title: info.title,
+                shareUrl: shareUrl,
                 createdAt: Date.now()
             }).then(() => {
                 document.getElementById('urlInput').value = '';
                 document.getElementById('codeInput').value = '';
-                showStatus('Saved. Preview below.', 'success');
+                showStatus('Saved. Share link ready below.', 'success');
             }).catch(err => {
                 const msg = (err && err.message) || 'unknown';
                 if (msg.indexOf('PERMISSION_DENIED') !== -1) {
@@ -399,10 +456,9 @@
                 .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             renderList(list);
         }, (err) => {
-            console.warn('Embed list read failed:', err);
             const wrap = document.getElementById('embedList');
             if (wrap && !wrap.innerHTML.trim()) {
-                wrap.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load saved embeds. Check Firebase rules for `embed_studio` (read + write must be true) and confirm the Realtime Database exists in project datingapplication-25f32.</div>';
+                wrap.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load saved embeds. Check Firebase rules for `embed_studio` and confirm the Realtime Database exists in project datingapplication-25f32.</div>';
             }
         });
 
@@ -421,11 +477,42 @@
             }).catch(() => showStatus('Copy failed. Select the code manually.', 'error'));
         };
 
+        window.copyShareUrl = function(key) {
+            const el = document.getElementById('share-' + key);
+            if (!el) return;
+            const url = el.textContent.trim();
+            navigator.clipboard.writeText(url).then(() => {
+                showStatus('Share link copied. Send it to yourself or anyone.', 'success');
+            }).catch(() => showStatus('Copy failed. Select the link manually.', 'error'));
+        };
+
         window.openLink = function(key) {
             const el = document.getElementById('code-' + key);
             if (!el) return;
             const data = JSON.parse(el.getAttribute('data-raw') || '{}');
             if (data.url) window.open(data.url, '_blank');
+        };
+
+        window.openShareUrl = function(key) {
+            const el = document.getElementById('share-' + key);
+            if (!el) return;
+            window.open(el.textContent.trim(), '_blank');
+        };
+
+        window.nativeShare = async function(key, title) {
+            const el = document.getElementById('share-' + key);
+            if (!el) return;
+            const url = el.textContent.trim();
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: title || 'JARVIS Embed', text: 'Embed ready to use', url: url });
+                    showStatus('Shared.', 'success');
+                } catch (e) {
+                    if (e.name !== 'AbortError') showStatus('Share cancelled.', 'error');
+                }
+            } else {
+                window.copyShareUrl(key);
+            }
         };
 
         function renderList(list) {
@@ -434,41 +521,7 @@
                 wrap.innerHTML = '<div class="empty-state"><div class="icon">🔗</div>No embeds yet. Paste a link or an HTML block above to get started.</div>';
                 return;
             }
-            wrap.innerHTML = list.map(item => `
-                <div class="embed-card">
-                    <div class="embed-header">
-                        <div class="embed-title">${escapeHtml(item.title || item.url || 'Untitled')}</div>
-                        <div class="embed-type">${escapeHtml((item.type || '').toUpperCase())}</div>
-                    </div>
-                    <div class="embed-preview">${renderPreview(item)}</div>
-                    <div class="embed-code" id="code-${item.key}" data-raw='${escapeJson(item)}'>${escapeHtml(item.embedCode || '')}</div>
-                    <div class="embed-actions">
-                        <button class="btn" onclick="copyCode('${item.key}')">Copy embed code</button>
-                        <button class="btn secondary" onclick="openLink('${item.key}')">Open original</button>
-                        <button class="btn danger" onclick="deleteEmbed('${item.key}')">Remove</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderPreview(item) {
-            if (item.type === 'tiktok') {
-                return `<div class="unavailable">
-                    <div class="icon">🎵</div>
-                    <div>TikTok preview may be blocked in your region.</div>
-                    <a class="fallback-link" href="${escapeHtml(item.url)}" target="_blank" style="height:auto;padding:8px;font-size:13px;">Open on TikTok →</a>
-                </div>`;
-            }
-            if (item.type === 'html') {
-                return item.embedCode;
-            }
-            if (!item.embedUrl) {
-                return `<a class="fallback-link" href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.url)}</a>`;
-            }
-            if (item.type === 'video') return `<video controls src="${escapeHtml(item.embedUrl)}"></video>`;
-            if (item.type === 'audio') return `<audio controls src="${escapeHtml(item.embedUrl)}"></audio>`;
-            if (item.type === 'image') return `<img src="${escapeHtml(item.embedUrl)}" alt="">`;
-            return `<iframe src="${escapeHtml(item.embedUrl)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+            wrap.innerHTML = list.map(item => renderCard(item, item.key, false)).join('');
         }
 
         function showStatus(msg, type) {
@@ -479,10 +532,68 @@
         }
     }
 
-    function analyzeInput(raw, mode) {
-        if (mode === 'code' || /<[a-z]/i.test(raw)) {
-            return analyzeHtmlBlock(raw);
+    function renderCard(item, key, isSharePage) {
+        const shareUrl = item.shareUrl || (window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(key));
+        const actions = isSharePage
+            ? `
+                <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('code-${key}').textContent).then(()=>alert('Embed code copied')).catch(()=>alert('Copy failed'))">Copy embed code</button>
+                <button class="btn secondary" onclick="window.open('${escapeHtml(item.url)}','_blank')">Open original</button>
+            `
+            : `
+                <button class="btn" onclick="copyCode('${key}')">Copy embed code</button>
+                <button class="btn share" onclick="copyShareUrl('${key}')">🔗 Copy share link</button>
+                <button class="btn secondary" onclick="nativeShare('${key}', '${escapeHtml(item.title || '')}')">📤 Share</button>
+                <button class="btn secondary" onclick="openShareUrl('${key}')">Preview share page</button>
+                <button class="btn secondary" onclick="openLink('${key}')">Open original</button>
+                <button class="btn danger" onclick="deleteEmbed('${key}')">Remove</button>
+            `;
+
+        return `
+            <div class="embed-card">
+                <div class="embed-header">
+                    <div class="embed-title">${escapeHtml(item.title || item.url || 'Untitled')}</div>
+                    <div class="embed-type">${escapeHtml((item.type || '').toUpperCase())}</div>
+                </div>
+                <div class="embed-preview">${renderPreview(item)}</div>
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Share link</div>
+                <div class="embed-share-url" id="share-${key}">${escapeHtml(shareUrl)}</div>
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Embed code</div>
+                <div class="embed-code" id="code-${key}" data-raw='${escapeJson(item)}'>${escapeHtml(item.embedCode || '')}</div>
+                <div class="embed-actions">${actions}</div>
+            </div>
+        `;
+    }
+
+    function renderPreview(item) {
+        if (item.type === 'tiktok') {
+            return `<div class="unavailable">
+                <div class="icon">🎵</div>
+                <div>TikTok preview may be blocked in your region.</div>
+                <a class="fallback-link" href="${escapeHtml(item.url)}" target="_blank" style="height:auto;padding:8px;font-size:13px;">Open on TikTok →</a>
+            </div>`;
         }
+        if (item.type === 'html') return item.embedCode;
+        if (!item.embedUrl) return `<a class="fallback-link" href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.url)}</a>`;
+        if (item.type === 'video') return `<video controls src="${escapeHtml(item.embedUrl)}"></video>`;
+        if (item.type === 'audio') return `<audio controls src="${escapeHtml(item.embedUrl)}"></audio>`;
+        if (item.type === 'image') return `<img src="${escapeHtml(item.embedUrl)}" alt="">`;
+        return `<iframe src="${escapeHtml(item.embedUrl)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    }
+
+    async function validateTikTok(url) {
+        try {
+            const res = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(url));
+            if (!res.ok) return { ok: false, reason: 'HTTP ' + res.status };
+            const data = await res.json();
+            if (data && data.html) return { ok: true };
+            return { ok: false, reason: 'No embed HTML returned (region-restricted or removed).' };
+        } catch (e) {
+            return { ok: false, reason: 'Network error: ' + (e.message || 'unknown') };
+        }
+    }
+
+    function analyzeInput(raw, mode) {
+        if (mode === 'code' || /<[a-z]/i.test(raw)) return analyzeHtmlBlock(raw);
         if (!/^https?:\/\//i.test(raw)) return null;
         const url = raw;
 
@@ -493,7 +604,6 @@
                 embedUrl: 'https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0',
                 embedCode: '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>' };
         }
-
         const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
         if (vimeo) {
             const id = vimeo[1];
@@ -501,7 +611,6 @@
                 embedUrl: 'https://player.vimeo.com/video/' + id,
                 embedCode: '<iframe width="100%" height="400" src="https://player.vimeo.com/video/' + id + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>' };
         }
-
         const tiktok = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
         if (tiktok) {
             const id = tiktok[1];
@@ -509,7 +618,6 @@
             return { type: 'tiktok', title: 'TikTok · ' + id, url, embedUrl,
                 embedCode: '<iframe height="578" width="325" src="' + embedUrl + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>' };
         }
-
         if (/\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url)) return { type: 'video', title: 'Video file', url, embedUrl: url, embedCode: '<video controls playsinline src="' + url + '" style="width:100%;"></video>' };
         if (/\.(mp3|wav|ogg|oga|m4a|aac|flac)(\?|$)/i.test(url)) return { type: 'audio', title: 'Audio file', url, embedUrl: url, embedCode: '<audio controls src="' + url + '" style="width:100%;"></audio>' };
         if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url)) return { type: 'image', title: 'Image', url, embedUrl: url, embedCode: '<img src="' + url + '" alt="" style="max-width:100%;">' };
@@ -533,12 +641,8 @@
         else if (/youtube\.com\/embed|youtu\.be/i.test(src)) type = 'youtube';
         else if (/player\.vimeo\.com/i.test(src)) type = 'vimeo';
         else if (iframeMatch) type = 'iframe';
-        return { type, title: extractTitle(html) || src, url: src, embedUrl: src, embedCode: html };
-    }
-
-    function extractTitle(html) {
-        const m = html.match(/\btitle\s*=\s*["']([^"']+)["']/i);
-        return m ? m[1] : '';
+        const titleMatch = html.match(/\btitle\s*=\s*["']([^"']+)["']/i);
+        return { type, title: titleMatch ? titleMatch[1] : src, url: src, embedUrl: src, embedCode: html };
     }
 
     function escapeHtml(s) {

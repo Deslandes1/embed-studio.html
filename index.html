@@ -149,157 +149,91 @@
         align-items: center;
         justify-content: center;
     }
-    .embed-preview iframe {
-        width: 100%;
-        height: 100%;
-        border: 0;
-        display: block;
-    }
-    .embed-preview video {
-        width: 100%;
-        height: 100%;
-        display: block;
-        background: #000;
-    }
-    .embed-preview img {
-        max-width: 100%;
-        max-height: 100%;
-        display: block;
-    }
+    .embed-preview iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .embed-preview video { width: 100%; height: 100%; display: block; background: #000; }
+    .embed-preview img { max-width: 100%; max-height: 100%; display: block; object-fit: contain; }
     .embed-preview audio { width: 90%; }
     .embed-preview .fallback-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: #d4af37;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 15px;
-        text-align: center;
-        padding: 20px;
-        word-break: break-all;
+        display: flex; align-items: center; justify-content: center;
+        height: 100%; color: #d4af37; text-decoration: none;
+        font-weight: 700; font-size: 15px; text-align: center;
+        padding: 20px; word-break: break-all;
     }
-    .embed-preview .unavailable {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: #ff6b7a;
-        font-weight: 700;
-        font-size: 14px;
-        text-align: center;
-        padding: 20px;
-        gap: 8px;
+    .embed-preview .preview-card {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100%; padding: 20px; gap: 12px; text-align: center;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
     }
-    .embed-preview .unavailable .icon { font-size: 40px; }
+    .embed-preview .preview-card img { max-width: 80px; max-height: 80px; border-radius: 8px; }
+    .embed-preview .preview-card .domain {
+        font-size: 12px; color: #94a3b8; text-transform: uppercase;
+        letter-spacing: 1px; font-weight: 700;
+    }
+    .embed-preview .preview-card .title {
+        font-size: 15px; font-weight: 700; color: #e2e8f0;
+        max-width: 90%; line-height: 1.4;
+    }
+    .embed-preview .preview-card .open-btn {
+        background: #d4af37; color: #0b2a4a;
+        padding: 10px 18px; border-radius: 8px;
+        text-decoration: none; font-weight: 800; font-size: 13px;
+    }
     .embed-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 10px;
-        flex-wrap: wrap;
+        display: flex; justify-content: space-between; align-items: flex-start;
+        gap: 10px; flex-wrap: wrap;
     }
     .embed-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: #e2e8f0;
-        word-break: break-all;
-        flex: 1;
-        min-width: 200px;
+        font-size: 15px; font-weight: 700; color: #e2e8f0;
+        word-break: break-all; flex: 1; min-width: 200px;
     }
     .embed-type {
-        font-size: 11px;
-        font-weight: 800;
-        padding: 4px 10px;
-        border-radius: 6px;
-        background: rgba(212,175,55,0.15);
-        color: #d4af37;
-        letter-spacing: 0.5px;
+        font-size: 11px; font-weight: 800; padding: 4px 10px;
+        border-radius: 6px; background: rgba(212,175,55,0.15);
+        color: #d4af37; letter-spacing: 0.5px;
     }
     .embed-code {
-        background: #000;
-        color: #a5f3fc;
-        padding: 12px;
-        border-radius: 8px;
-        font-family: monospace;
-        font-size: 12px;
-        white-space: pre-wrap;
-        word-break: break-all;
-        border: 1px solid #1e293b;
-        max-height: 160px;
-        overflow: auto;
+        background: #000; color: #a5f3fc; padding: 12px;
+        border-radius: 8px; font-family: monospace; font-size: 12px;
+        white-space: pre-wrap; word-break: break-all;
+        border: 1px solid #1e293b; max-height: 160px; overflow: auto;
     }
     .embed-share-url {
-        background: #071d33;
-        color: #f0d369;
-        padding: 10px 12px;
-        border-radius: 8px;
-        font-family: monospace;
-        font-size: 12px;
-        word-break: break-all;
-        border: 1px dashed #d4af37;
+        background: #071d33; color: #f0d369; padding: 10px 12px;
+        border-radius: 8px; font-family: monospace; font-size: 12px;
+        word-break: break-all; border: 1px dashed #d4af37;
     }
-    .embed-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    .embed-actions .btn {
-        padding: 9px 14px;
-        font-size: 13px;
-    }
+    .embed-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .embed-actions .btn { padding: 9px 14px; font-size: 13px; }
     .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #64748b;
-        font-size: 15px;
+        text-align: center; padding: 60px 20px; color: #64748b; font-size: 15px;
     }
     .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
     .footer-info {
-        text-align: center;
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 1px solid #1e293b;
-        font-size: 13px;
-        color: #94a3b8;
-        line-height: 1.8;
+        text-align: center; margin-top: 40px; padding-top: 20px;
+        border-top: 1px solid #1e293b; font-size: 13px;
+        color: #94a3b8; line-height: 1.8;
     }
     .footer-info a { color: #d4af37; text-decoration: none; }
     .hint {
-        font-size: 12px;
-        color: #64748b;
-        margin-bottom: 16px;
-        line-height: 1.6;
-        padding: 0 4px;
+        font-size: 12px; color: #64748b; margin-bottom: 16px;
+        line-height: 1.6; padding: 0 4px;
     }
     .share-page .embed-card { max-width: 800px; margin: 0 auto 20px; }
     .share-banner {
-        text-align: center;
-        padding: 16px;
-        margin-bottom: 20px;
-        background: #071d33;
-        border: 1px solid #d4af37;
-        border-radius: 10px;
-        font-size: 14px;
-        color: #f0d369;
+        text-align: center; padding: 16px; margin-bottom: 20px;
+        background: #071d33; border: 1px solid #d4af37;
+        border-radius: 10px; font-size: 14px; color: #f0d369;
     }
 </style>
 </head>
 <body>
-<div class="container" id="appContainer">
-    <!-- Main app (rendered by JS) -->
-</div>
+<div class="container" id="appContainer"></div>
 
 <script type="module">
     import { ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const wait = setInterval(() => {
-        if (window._fb && window._fb.db) {
-            clearInterval(wait);
-            boot();
-        }
+        if (window._fb && window._fb.db) { clearInterval(wait); boot(); }
     }, 100);
 
     let currentMode = 'url';
@@ -309,19 +243,14 @@
     function boot() {
         const params = new URLSearchParams(window.location.search);
         shareKey = params.get('embed');
-        if (shareKey) {
-            isShareView = true;
-            renderShareView();
-        } else {
-            renderMainView();
-            initMainApp();
-        }
+        if (shareKey) { isShareView = true; renderShareView(); }
+        else { renderMainView(); initMainApp(); }
     }
 
     function renderMainView() {
         document.getElementById('appContainer').innerHTML = `
             <h1>JARVIS Embed Studio</h1>
-            <p class="subtitle">Paste a link, or paste a full iframe/video/audio HTML block. Every saved embed gets its own shareable link.</p>
+            <p class="subtitle">Paste any link. If the platform supports it, we build the official embed. If not, we build a rich preview card — no redirect tricks.</p>
 
             <div class="mode-toggle">
                 <button id="modeUrl" class="active" onclick="setMode('url')">🔗 Link</button>
@@ -329,14 +258,14 @@
             </div>
 
             <div class="input-row" id="rowUrl">
-                <input id="urlInput" type="text" placeholder="Paste a YouTube, Vimeo, TikTok, MP4, MP3, PDF, or any link…">
+                <input id="urlInput" type="text" placeholder="Paste a YouTube, TikTok, Instagram, X, SoundCloud, MP4, PDF, or any link…">
             </div>
             <div class="input-row" id="rowCode" style="display:none;">
                 <textarea id="codeInput" placeholder='Paste a full iframe, video, audio, or img HTML block.'></textarea>
             </div>
 
             <div class="hint">
-                Tip: For TikTok, paste the full iframe code or a TikTok video link — the app converts it automatically. TikTok embeds are region-restricted and may fail in some locations.
+                We try the platform's official embed API first. If the platform refuses (like TikTok in some regions), we fall back to a rich link card you can still share.
             </div>
 
             <div class="input-row">
@@ -360,7 +289,7 @@
         document.getElementById('appContainer').innerHTML = `
             <div class="share-page">
                 <h1>Shared Embed</h1>
-                <div class="share-banner">This embed was shared with you. Copy the code below to use it anywhere.</div>
+                <div class="share-banner">This embed was shared with you. It plays right here — no redirect.</div>
                 <div id="shareEmbedArea"></div>
                 <div style="text-align:center;margin-top:20px;">
                     <a class="btn secondary" href="./" style="text-decoration:none;display:inline-block;">← Back to Embed Studio</a>
@@ -376,12 +305,12 @@
             const item = snap.val();
             const area = document.getElementById('shareEmbedArea');
             if (!item) {
-                area.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>This shared embed was not found. It may have been removed.</div>';
+                area.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>This shared embed was not found.</div>';
                 return;
             }
             area.innerHTML = renderCard(item, key, true);
         } catch (e) {
-            document.getElementById('shareEmbedArea').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load this embed. Check the link or try again later.</div>';
+            document.getElementById('shareEmbedArea').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load this embed.</div>';
         }
     }
 
@@ -404,27 +333,23 @@
                 ? (document.getElementById('urlInput').value || '').trim()
                 : (document.getElementById('codeInput').value || '').trim();
 
-            if (!raw) return showStatus('Please paste a link or an HTML block first.', 'error');
+            if (!raw) return showStatus('Please paste a link first.', 'error');
 
-            const info = analyzeInput(raw, currentMode);
-            if (!info) return showStatus('Could not understand this input. Paste a https:// link or a full iframe/video/audio HTML block.', 'error');
+            btn.disabled = true;
+            btn.textContent = 'Building embed…';
 
-            if (info.type === 'tiktok') {
-                btn.disabled = true;
-                btn.textContent = 'Checking TikTok…';
-                const check = await validateTikTok(info.url);
-                btn.disabled = false;
-                btn.textContent = 'Convert & Save';
-                if (!check.ok) {
-                    showStatus('❌ This TikTok video cannot be embedded (' + check.reason + '). TikTok blocks its player in some regions. Try a direct MP4 link instead.', 'error');
-                    return;
-                }
-                showStatus('TikTok video is embeddable — saving…', 'warning');
+            const info = await analyzeInput(raw, currentMode);
+
+            btn.disabled = false;
+            btn.textContent = 'Convert & Save';
+
+            if (!info) {
+                showStatus('Could not convert this link. Try pasting the platform embed code instead.', 'error');
+                return;
             }
 
             const newRef = push(linksRef);
             const key = newRef.key;
-
             const shareUrl = window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(key);
 
             newRef.set({
@@ -442,7 +367,7 @@
             }).catch(err => {
                 const msg = (err && err.message) || 'unknown';
                 if (msg.indexOf('PERMISSION_DENIED') !== -1) {
-                    showStatus('Firebase denied the write. Confirm the Realtime Database exists in project datingapplication-25f32 and that `embed_studio` has `.read: true` and `.write: true` under Rules.', 'error');
+                    showStatus('Firebase denied the write. Confirm `embed_studio` has `.read: true` and `.write: true` under Rules.', 'error');
                 } else {
                     showStatus('Save failed: ' + msg, 'error');
                 }
@@ -458,32 +383,25 @@
         }, (err) => {
             const wrap = document.getElementById('embedList');
             if (wrap && !wrap.innerHTML.trim()) {
-                wrap.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load saved embeds. Check Firebase rules for `embed_studio` and confirm the Realtime Database exists in project datingapplication-25f32.</div>';
+                wrap.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load saved embeds. Check Firebase rules.</div>';
             }
         });
 
         window.deleteEmbed = function(key) {
             if (!confirm('Remove this embed?')) return;
-            remove(ref(db, EMBEDS_PATH + '/' + key)).catch(err => {
-                showStatus('Delete failed: ' + (err.message || 'unknown'), 'error');
-            });
+            remove(ref(db, EMBEDS_PATH + '/' + key)).catch(err => showStatus('Delete failed: ' + (err.message || 'unknown'), 'error'));
         };
 
         window.copyCode = function(key) {
             const el = document.getElementById('code-' + key);
             if (!el) return;
-            navigator.clipboard.writeText(el.textContent).then(() => {
-                showStatus('Embed code copied.', 'success');
-            }).catch(() => showStatus('Copy failed. Select the code manually.', 'error'));
+            navigator.clipboard.writeText(el.textContent).then(() => showStatus('Embed code copied.', 'success'));
         };
 
         window.copyShareUrl = function(key) {
             const el = document.getElementById('share-' + key);
             if (!el) return;
-            const url = el.textContent.trim();
-            navigator.clipboard.writeText(url).then(() => {
-                showStatus('Share link copied. Send it to yourself or anyone.', 'success');
-            }).catch(() => showStatus('Copy failed. Select the link manually.', 'error'));
+            navigator.clipboard.writeText(el.textContent.trim()).then(() => showStatus('Share link copied.', 'success'));
         };
 
         window.openLink = function(key) {
@@ -504,21 +422,15 @@
             if (!el) return;
             const url = el.textContent.trim();
             if (navigator.share) {
-                try {
-                    await navigator.share({ title: title || 'JARVIS Embed', text: 'Embed ready to use', url: url });
-                    showStatus('Shared.', 'success');
-                } catch (e) {
-                    if (e.name !== 'AbortError') showStatus('Share cancelled.', 'error');
-                }
-            } else {
-                window.copyShareUrl(key);
-            }
+                try { await navigator.share({ title: title || 'JARVIS Embed', text: 'Embed ready to use', url: url }); showStatus('Shared.', 'success'); }
+                catch (e) { if (e.name !== 'AbortError') showStatus('Share cancelled.', 'error'); }
+            } else { window.copyShareUrl(key); }
         };
 
         function renderList(list) {
             const wrap = document.getElementById('embedList');
             if (!list.length) {
-                wrap.innerHTML = '<div class="empty-state"><div class="icon">🔗</div>No embeds yet. Paste a link or an HTML block above to get started.</div>';
+                wrap.innerHTML = '<div class="empty-state"><div class="icon">🔗</div>No embeds yet. Paste a link above to get started.</div>';
                 return;
             }
             wrap.innerHTML = list.map(item => renderCard(item, item.key, false)).join('');
@@ -535,18 +447,14 @@
     function renderCard(item, key, isSharePage) {
         const shareUrl = item.shareUrl || (window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(key));
         const actions = isSharePage
-            ? `
-                <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('code-${key}').textContent).then(()=>alert('Embed code copied')).catch(()=>alert('Copy failed'))">Copy embed code</button>
-                <button class="btn secondary" onclick="window.open('${escapeHtml(item.url)}','_blank')">Open original</button>
-            `
-            : `
-                <button class="btn" onclick="copyCode('${key}')">Copy embed code</button>
-                <button class="btn share" onclick="copyShareUrl('${key}')">🔗 Copy share link</button>
-                <button class="btn secondary" onclick="nativeShare('${key}', '${escapeHtml(item.title || '')}')">📤 Share</button>
-                <button class="btn secondary" onclick="openShareUrl('${key}')">Preview share page</button>
-                <button class="btn secondary" onclick="openLink('${key}')">Open original</button>
-                <button class="btn danger" onclick="deleteEmbed('${key}')">Remove</button>
-            `;
+            ? `<button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('code-${key}').textContent).then(()=>alert('Embed code copied')).catch(()=>alert('Copy failed'))">Copy embed code</button>
+               <button class="btn secondary" onclick="window.open('${escapeHtml(item.url)}','_blank')">Open original</button>`
+            : `<button class="btn" onclick="copyCode('${key}')">Copy embed code</button>
+               <button class="btn share" onclick="copyShareUrl('${key}')">🔗 Copy share link</button>
+               <button class="btn secondary" onclick="nativeShare('${key}', '${escapeHtml(item.title || '')}')">📤 Share</button>
+               <button class="btn secondary" onclick="openShareUrl('${key}')">Preview share page</button>
+               <button class="btn secondary" onclick="openLink('${key}')">Open original</button>
+               <button class="btn danger" onclick="deleteEmbed('${key}')">Remove</button>`;
 
         return `
             <div class="embed-card">
@@ -565,11 +473,14 @@
     }
 
     function renderPreview(item) {
-        if (item.type === 'tiktok') {
-            return `<div class="unavailable">
-                <div class="icon">🎵</div>
-                <div>TikTok preview may be blocked in your region.</div>
-                <a class="fallback-link" href="${escapeHtml(item.url)}" target="_blank" style="height:auto;padding:8px;font-size:13px;">Open on TikTok →</a>
+        if (item.type === 'link') {
+            const domain = (() => { try { return new URL(item.url).hostname.replace(/^www\./, ''); } catch(e) { return ''; } })();
+            const favicon = domain ? 'https://www.google.com/s2/favicons?sz=128&domain=' + domain : '';
+            return `<div class="preview-card">
+                ${favicon ? `<img src="${favicon}" onerror="this.style.display='none'">` : ''}
+                <div class="domain">${escapeHtml(domain)}</div>
+                <div class="title">${escapeHtml(item.title || item.url)}</div>
+                <a class="open-btn" href="${escapeHtml(item.url)}" target="_blank">Open original</a>
             </div>`;
         }
         if (item.type === 'html') return item.embedCode;
@@ -577,53 +488,123 @@
         if (item.type === 'video') return `<video controls src="${escapeHtml(item.embedUrl)}"></video>`;
         if (item.type === 'audio') return `<audio controls src="${escapeHtml(item.embedUrl)}"></audio>`;
         if (item.type === 'image') return `<img src="${escapeHtml(item.embedUrl)}" alt="">`;
-        return `<iframe src="${escapeHtml(item.embedUrl)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+        return `<iframe src="${escapeHtml(item.embedUrl)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>`;
     }
 
-    async function validateTikTok(url) {
-        try {
-            const res = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(url));
-            if (!res.ok) return { ok: false, reason: 'HTTP ' + res.status };
-            const data = await res.json();
-            if (data && data.html) return { ok: true };
-            return { ok: false, reason: 'No embed HTML returned (region-restricted or removed).' };
-        } catch (e) {
-            return { ok: false, reason: 'Network error: ' + (e.message || 'unknown') };
-        }
-    }
-
-    function analyzeInput(raw, mode) {
+    async function analyzeInput(raw, mode) {
         if (mode === 'code' || /<[a-z]/i.test(raw)) return analyzeHtmlBlock(raw);
         if (!/^https?:\/\//i.test(raw)) return null;
-        const url = raw;
+        return await buildEmbed(raw);
+    }
 
-        const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/)([A-Za-z0-9_-]{11})/);
-        if (yt) {
-            const id = yt[1];
+    async function buildEmbed(url) {
+        // 1. Direct media
+        if (/\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url)) return { type: 'video', title: 'Video file', url, embedUrl: url, embedCode: '<video controls playsinline src="' + url + '" style="width:100%;"></video>' };
+        if (/\.(mp3|wav|ogg|oga|m4a|aac|flac)(\?|$)/i.test(url)) return { type: 'audio', title: 'Audio file', url, embedUrl: url, embedCode: '<audio controls src="' + url + '" style="width:100%;"></audio>' };
+        if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url)) return { type: 'image', title: 'Image', url, embedUrl: url, embedCode: '<img src="' + url + '" style="max-width:100%;">' };
+        if (/\.pdf(\?|$)/i.test(url)) return { type: 'pdf', title: 'PDF', url, embedUrl: url, embedCode: '<iframe src="' + url + '" width="100%" height="600" style="border:0;"></iframe>' };
+
+        // 2. YouTube via Invidious fallback
+        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/)([A-Za-z0-9_-]{11})/);
+        if (ytMatch) {
+            const id = ytMatch[1];
             return { type: 'youtube', title: 'YouTube · ' + id, url,
                 embedUrl: 'https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0',
                 embedCode: '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>' };
         }
-        const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-        if (vimeo) {
-            const id = vimeo[1];
+
+        // 3. Vimeo
+        const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        if (vimeoMatch) {
+            const id = vimeoMatch[1];
             return { type: 'vimeo', title: 'Vimeo · ' + id, url,
                 embedUrl: 'https://player.vimeo.com/video/' + id,
                 embedCode: '<iframe width="100%" height="400" src="https://player.vimeo.com/video/' + id + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>' };
         }
-        const tiktok = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
-        if (tiktok) {
-            const id = tiktok[1];
+
+        // 4. Official oEmbed endpoints
+        const oembed = await tryOEmbed(url);
+        if (oembed) return oembed;
+
+        // 5. TikTok fallback (even if oEmbed fails, still try the player URL)
+        const tiktokMatch = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+        if (tiktokMatch) {
+            const id = tiktokMatch[1];
             const embedUrl = 'https://www.tiktok.com/player/v1/' + id + '?embed_from=webapp_share&music_info=1&description=1&autoplay=1&muted=1';
             return { type: 'tiktok', title: 'TikTok · ' + id, url, embedUrl,
                 embedCode: '<iframe height="578" width="325" src="' + embedUrl + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>' };
         }
-        if (/\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url)) return { type: 'video', title: 'Video file', url, embedUrl: url, embedCode: '<video controls playsinline src="' + url + '" style="width:100%;"></video>' };
-        if (/\.(mp3|wav|ogg|oga|m4a|aac|flac)(\?|$)/i.test(url)) return { type: 'audio', title: 'Audio file', url, embedUrl: url, embedCode: '<audio controls src="' + url + '" style="width:100%;"></audio>' };
-        if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url)) return { type: 'image', title: 'Image', url, embedUrl: url, embedCode: '<img src="' + url + '" alt="" style="max-width:100%;">' };
-        if (/\.pdf(\?|$)/i.test(url)) return { type: 'pdf', title: 'PDF', url, embedUrl: url, embedCode: '<iframe src="' + url + '" width="100%" height="600" style="border:0;"></iframe>' };
 
-        return { type: 'link', title: 'Link', url, embedUrl: null, embedCode: '<a href="' + url + '" target="_blank" rel="noopener">' + url + '</a>' };
+        // 6. Rich preview card fallback
+        return await buildPreviewCard(url);
+    }
+
+    async function tryOEmbed(url) {
+        const endpoints = [
+            'https://www.youtube.com/oembed?format=json&url=',
+            'https://vimeo.com/api/oembed.json?url=',
+            'https://www.tiktok.com/oembed?url=',
+            'https://www.facebook.com/plugins/oembed?url=',
+            'https://publish.twitter.com/oembed?url=',
+            'https://soundcloud.com/oembed?format=json&url=',
+            'https://www.dailymotion.com/services/oembed?format=json&url=',
+            'https://www.reddit.com/oembed?url=',
+            'https://www.pinterest.com/oembed.json?url='
+        ];
+        // Meta's Instagram requires an access token; skip directly.
+        for (const endpoint of endpoints) {
+            try {
+                const res = await fetch(endpoint + encodeURIComponent(url), { method: 'GET' });
+                if (!res.ok) continue;
+                const data = await res.json();
+                if (data && data.html) {
+                    let type = 'iframe';
+                    if (/youtube/.test(endpoint)) type = 'youtube';
+                    else if (/vimeo/.test(endpoint)) type = 'vimeo';
+                    else if (/tiktok/.test(endpoint)) type = 'tiktok';
+                    else if (/twitter/.test(endpoint)) type = 'twitter';
+                    else if (/facebook/.test(endpoint)) type = 'facebook';
+                    else if (/soundcloud/.test(endpoint)) type = 'soundcloud';
+                    else if (/dailymotion/.test(endpoint)) type = 'dailymotion';
+                    else if (/reddit/.test(endpoint)) type = 'reddit';
+                    else if (/pinterest/.test(endpoint)) type = 'pinterest';
+                    return {
+                        type,
+                        title: data.title || data.author_name || url,
+                        url,
+                        embedUrl: extractIframeSrc(data.html) || url,
+                        embedCode: data.html
+                    };
+                }
+            } catch (e) { /* try next endpoint */ }
+        }
+        return null;
+    }
+
+    async function buildPreviewCard(url) {
+        let domain = '';
+        try { domain = new URL(url).hostname.replace(/^www\./, ''); } catch (e) {}
+        let title = url;
+        try {
+            const res = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url));
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.data) {
+                    title = data.data.title || data.data.description || url;
+                }
+            }
+        } catch (e) {}
+        const embedCode = `<a href="${url}" target="_blank" rel="noopener" style="display:block;padding:16px;background:#0f172a;border:1px solid #1e293b;border-radius:10px;text-decoration:none;color:#e2e8f0;">
+  <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:700;">${escapeHtml(domain)}</div>
+  <div style="font-size:15px;font-weight:700;margin-top:6px;">${escapeHtml(title)}</div>
+  <div style="font-size:13px;color:#d4af37;margin-top:8px;font-weight:700;">Open original →</div>
+</a>`;
+        return { type: 'link', title, url, embedUrl: null, embedCode };
+    }
+
+    function extractIframeSrc(html) {
+        const m = html.match(/<iframe[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
+        return m ? m[1] : null;
     }
 
     function analyzeHtmlBlock(raw) {
@@ -632,10 +613,8 @@
         const videoMatch = html.match(/<video[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
         const audioMatch = html.match(/<audio[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
         const imgMatch = html.match(/<img[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
-        const sourceMatch = html.match(/<source[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
-        const src = (iframeMatch && iframeMatch[1]) || (videoMatch && videoMatch[1]) || (audioMatch && audioMatch[1]) || (imgMatch && imgMatch[1]) || (sourceMatch && sourceMatch[1]);
+        const src = (iframeMatch && iframeMatch[1]) || (videoMatch && videoMatch[1]) || (audioMatch && audioMatch[1]) || (imgMatch && imgMatch[1]);
         if (!src) return null;
-        if (!/^https?:\/\//i.test(src)) return null;
         let type = 'html';
         if (/tiktok\.com/i.test(src)) type = 'tiktok';
         else if (/youtube\.com\/embed|youtu\.be/i.test(src)) type = 'youtube';

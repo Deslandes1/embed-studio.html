@@ -128,7 +128,6 @@
     .status.error { background: rgba(255,71,87,0.2); border: 1px solid #ff4757; color: #ff6b7a; display: block; }
     .status.success { background: rgba(74,255,122,0.15); border: 1px solid #4aff7a; color: #8fffa8; display: block; }
     .status.warning { background: rgba(212,175,55,0.15); border: 1px solid #d4af37; color: #f0d369; display: block; }
-
     .embed-card {
         background: #0f172a;
         border: 1px solid #1e293b;
@@ -225,6 +224,10 @@
         background: #071d33; border: 1px solid #d4af37;
         border-radius: 10px; font-size: 14px; color: #f0d369;
     }
+
+    /* ============================================================
+       WATCH PAGE — padding-bottom aspect ratio (the video fix)
+       ============================================================ */
     .top-bar {
         display: flex; justify-content: space-between; align-items: center;
         gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
@@ -232,9 +235,6 @@
     .top-bar h1 { margin-bottom: 0; }
     .top-bar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    /* ============================================================
-       WATCH PAGE — padding-bottom aspect ratio (this is the fix)
-       ============================================================ */
     .watch-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -290,7 +290,10 @@
         padding: 20px; gap: 10px; text-align: center;
         background: linear-gradient(135deg, #0f172a, #1e293b);
     }
-    .watch-card .watch-preview .preview-card img { width: 60px !important; height: 60px !important; object-fit: contain; position: static !important; }
+    .watch-card .watch-preview .preview-card img {
+        width: 60px !important; height: 60px !important;
+        object-fit: contain; position: static !important;
+    }
     .watch-card .watch-preview .preview-card .domain {
         font-size: 11px; color: #94a3b8; text-transform: uppercase;
         letter-spacing: 1px; font-weight: 700;
@@ -403,7 +406,7 @@
                     <a href="?view=watch" class="btn secondary" style="text-decoration:none;">👁 View Watch Page</a>
                 </div>
             </div>
-            <p class="subtitle">Paste any link. If the platform supports it, we build the official embed. If not, we build a rich preview card.</p>
+            <p class="subtitle">Paste any link. If the platform supports it, we build the official embed. If not, we build a rich preview card — no redirect tricks.</p>
 
             <div class="mode-toggle">
                 <button id="modeUrl" class="active" onclick="setMode('url')">🔗 Link</button>
@@ -418,7 +421,7 @@
             </div>
 
             <div class="hint">
-                Every embed you save here appears instantly on the <a href="?view=watch" style="color:#d4af37;">Watch Page</a> — share that URL with your users so they can watch anytime.
+                We try the platform's official embed API first. If the platform refuses (like TikTok in some regions), we fall back to a rich link card you can still share. Everything you save appears instantly on the <a href="?view=watch" style="color:#d4af37;">Watch Page</a>.
             </div>
 
             <div class="input-row">
@@ -569,7 +572,7 @@
     }
 
     // ============================================================
-    // SHARE VIEW (single embed)
+    // SHARE VIEW
     // ============================================================
     function renderShareView() {
         document.getElementById('appContainer').innerHTML = `
@@ -747,9 +750,6 @@
         return `<iframe src="${escapeHtml(item.embedUrl)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>`;
     }
 
-    // ============================================================
-    // LINK ANALYSIS
-    // ============================================================
     async function analyzeInput(raw, mode) {
         if (mode === 'code' || /<[a-z]/i.test(raw)) return analyzeHtmlBlock(raw);
         if (!/^https?:\/\//i.test(raw)) return null;

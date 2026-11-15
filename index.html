@@ -224,6 +224,91 @@
         background: #071d33; border: 1px solid #d4af37;
         border-radius: 10px; font-size: 14px; color: #f0d369;
     }
+    .top-bar {
+        display: flex; justify-content: space-between; align-items: center;
+        gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .top-bar h1 { margin-bottom: 0; }
+    .top-bar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .watch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 16px;
+    }
+    .watch-card {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .watch-card .embed-preview {
+        border-radius: 0;
+        aspect-ratio: 16 / 9;
+    }
+    .watch-card .watch-info {
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .watch-card .watch-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #e2e8f0;
+        line-height: 1.4;
+        word-break: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .watch-card .watch-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+    .watch-card .watch-type {
+        font-size: 11px;
+        font-weight: 800;
+        color: #d4af37;
+        letter-spacing: 0.5px;
+    }
+    .watch-card .watch-date {
+        font-size: 11px;
+        color: #64748b;
+    }
+    .watch-card .watch-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .watch-card .watch-actions .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        flex: 1;
+        min-width: 90px;
+    }
+    .search-bar {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto 20px;
+        display: flex;
+    }
+    .search-bar input {
+        flex: 1;
+        padding: 12px 16px;
+        border-radius: 24px;
+        border: 2px solid #1e293b;
+        background: #0f172a;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+    }
+    .search-bar input:focus { border-color: #d4af37; }
 </style>
 </head>
 <body>
@@ -237,20 +322,32 @@
     }, 100);
 
     let currentMode = 'url';
-    let isShareView = false;
+    let viewMode = 'editor';   // 'editor' | 'watch' | 'share'
     let shareKey = null;
+    let watchSearchTerm = '';
 
     function boot() {
         const params = new URLSearchParams(window.location.search);
         shareKey = params.get('embed');
-        if (shareKey) { isShareView = true; renderShareView(); }
-        else { renderMainView(); initMainApp(); }
+        const v = params.get('view');
+
+        if (shareKey) { viewMode = 'share'; renderShareView(); }
+        else if (v === 'watch') { viewMode = 'watch'; renderWatchView(); initWatchView(); }
+        else { viewMode = 'editor'; renderMainView(); initMainApp(); }
     }
 
+    // ============================================================
+    // EDITOR
+    // ============================================================
     function renderMainView() {
         document.getElementById('appContainer').innerHTML = `
-            <h1>JARVIS Embed Studio</h1>
-            <p class="subtitle">Paste any link. If the platform supports it, we build the official embed. If not, we build a rich preview card — no redirect tricks.</p>
+            <div class="top-bar">
+                <h1>JARVIS Embed Studio</h1>
+                <div class="actions">
+                    <a href="?view=watch" class="btn secondary" style="text-decoration:none;">👁 View Watch Page</a>
+                </div>
+            </div>
+            <p class="subtitle">Paste any link. If the platform supports it, we build the official embed. If not, we build a rich preview card.</p>
 
             <div class="mode-toggle">
                 <button id="modeUrl" class="active" onclick="setMode('url')">🔗 Link</button>
@@ -265,7 +362,7 @@
             </div>
 
             <div class="hint">
-                We try the platform's official embed API first. If the platform refuses (like TikTok in some regions), we fall back to a rich link card you can still share.
+                Every embed you save here appears instantly on the <a href="?view=watch" style="color:#d4af37;">Watch Page</a> — share that URL with your users so they can watch anytime.
             </div>
 
             <div class="input-row">
@@ -283,35 +380,6 @@
                 <a href="https://globalinternetsitepy-abh7v6tnmskxxnuplrdcgk.streamlit.app/" target="_blank">Global Technology Site</a>
             </div>
         `;
-    }
-
-    function renderShareView() {
-        document.getElementById('appContainer').innerHTML = `
-            <div class="share-page">
-                <h1>Shared Embed</h1>
-                <div class="share-banner">This embed was shared with you. It plays right here — no redirect.</div>
-                <div id="shareEmbedArea"></div>
-                <div style="text-align:center;margin-top:20px;">
-                    <a class="btn secondary" href="./" style="text-decoration:none;display:inline-block;">← Back to Embed Studio</a>
-                </div>
-            </div>
-        `;
-        loadSharedEmbed(shareKey);
-    }
-
-    async function loadSharedEmbed(key) {
-        try {
-            const snap = await get(ref(window._fb.db, 'embed_studio/links/' + key));
-            const item = snap.val();
-            const area = document.getElementById('shareEmbedArea');
-            if (!item) {
-                area.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>This shared embed was not found.</div>';
-                return;
-            }
-            area.innerHTML = renderCard(item, key, true);
-        } catch (e) {
-            document.getElementById('shareEmbedArea').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load this embed.</div>';
-        }
     }
 
     function initMainApp() {
@@ -363,7 +431,7 @@
             }).then(() => {
                 document.getElementById('urlInput').value = '';
                 document.getElementById('codeInput').value = '';
-                showStatus('Saved. Share link ready below.', 'success');
+                showStatus('Saved. It now appears on the Watch Page for all your users.', 'success');
             }).catch(err => {
                 const msg = (err && err.message) || 'unknown';
                 if (msg.indexOf('PERMISSION_DENIED') !== -1) {
@@ -388,7 +456,7 @@
         });
 
         window.deleteEmbed = function(key) {
-            if (!confirm('Remove this embed?')) return;
+            if (!confirm('Remove this embed? It will also disappear from the Watch Page.')) return;
             remove(ref(db, EMBEDS_PATH + '/' + key)).catch(err => showStatus('Delete failed: ' + (err.message || 'unknown'), 'error'));
         };
 
@@ -444,6 +512,139 @@
         }
     }
 
+    // ============================================================
+    // SHARE VIEW (single embed)
+    // ============================================================
+    function renderShareView() {
+        document.getElementById('appContainer').innerHTML = `
+            <div class="share-page">
+                <h1>Shared Embed</h1>
+                <div class="share-banner">This embed was shared with you. It plays right here — no redirect.</div>
+                <div id="shareEmbedArea"></div>
+                <div style="text-align:center;margin-top:20px;">
+                    <a class="btn secondary" href="./?view=watch" style="text-decoration:none;display:inline-block;">← Watch Page</a>
+                </div>
+            </div>
+        `;
+        loadSharedEmbed(shareKey);
+    }
+
+    async function loadSharedEmbed(key) {
+        try {
+            const snap = await get(ref(window._fb.db, 'embed_studio/links/' + key));
+            const item = snap.val();
+            const area = document.getElementById('shareEmbedArea');
+            if (!item) {
+                area.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>This shared embed was not found.</div>';
+                return;
+            }
+            area.innerHTML = renderCard(item, key, true);
+        } catch (e) {
+            document.getElementById('shareEmbedArea').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load this embed.</div>';
+        }
+    }
+
+    // ============================================================
+    // WATCH VIEW (public feed)
+    // ============================================================
+    function renderWatchView() {
+        document.getElementById('appContainer').innerHTML = `
+            <div class="top-bar">
+                <h1>🎬 Watch</h1>
+                <div class="actions">
+                    <a href="./" class="btn secondary" style="text-decoration:none;">✏️ Editor</a>
+                </div>
+            </div>
+            <p class="subtitle">Every video shared on JARVIS. Plays right here — no redirects.</p>
+
+            <div class="search-bar">
+                <input id="watchSearch" type="text" placeholder="Search videos by title, platform, or domain…" oninput="filterWatchList(this.value)">
+            </div>
+
+            <div id="watchGrid" class="watch-grid">
+                <div class="empty-state"><div class="icon">⏳</div>Loading videos…</div>
+            </div>
+
+            <div class="footer-info">
+                Built by Gesner Deslandes (GlobalInternet.py)<br>
+                Phone: (509) 4738 5663 · Email: deslandes78@gmail.com<br>
+                <a href="https://deslandes1.github.io/jarvis-auto-apply./" target="_blank">JARVIS Auto-Apply</a> ·
+                <a href="https://deslandes1.github.io/G-COMMUNICATION-2026/" target="_blank">G JARVIS Portal</a> ·
+                <a href="https://globalinternetsitepy-abh7v6tnmskxxnuplrdcgk.streamlit.app/" target="_blank">Global Technology Site</a>
+            </div>
+        `;
+    }
+
+    let allWatchItems = [];
+
+    function initWatchView() {
+        const db = window._fb.db;
+        const linksRef = ref(db, 'embed_studio/links');
+        onValue(linksRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            allWatchItems = Object.keys(data)
+                .map(k => ({ key: k, ...data[k] }))
+                .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            renderWatchGrid(allWatchItems);
+        }, (err) => {
+            const grid = document.getElementById('watchGrid');
+            if (grid) grid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load videos. Check Firebase rules.</div>';
+        });
+    }
+
+    function renderWatchGrid(items) {
+        const grid = document.getElementById('watchGrid');
+        if (!grid) return;
+        if (!items.length) {
+            grid.innerHTML = '<div class="empty-state"><div class="icon">🎬</div>No videos yet. New embeds appear here automatically.</div>';
+            return;
+        }
+        grid.innerHTML = items.map(item => {
+            const shareUrl = item.shareUrl || (window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(item.key));
+            const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '';
+            return `
+                <div class="watch-card">
+                    <div class="embed-preview">${renderPreview(item)}</div>
+                    <div class="watch-info">
+                        <div class="watch-title">${escapeHtml(item.title || item.url || 'Untitled')}</div>
+                        <div class="watch-meta">
+                            <span class="watch-type">${escapeHtml((item.type || '').toUpperCase())}</span>
+                            <span class="watch-date">${escapeHtml(dateStr)}</span>
+                        </div>
+                        <div class="watch-actions">
+                            <button class="btn share" onclick="watchCopyShare('${item.key}')">🔗 Share</button>
+                            <button class="btn secondary" onclick="window.open('${escapeHtml(item.url)}','_blank')">Open</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    window.filterWatchList = function(term) {
+        watchSearchTerm = (term || '').toLowerCase().trim();
+        if (!watchSearchTerm) return renderWatchGrid(allWatchItems);
+        const filtered = allWatchItems.filter(item => {
+            const hay = ((item.title || '') + ' ' + (item.url || '') + ' ' + (item.type || '')).toLowerCase();
+            return hay.indexOf(watchSearchTerm) !== -1;
+        });
+        renderWatchGrid(filtered);
+    };
+
+    window.watchCopyShare = function(key) {
+        const item = allWatchItems.find(i => i.key === key);
+        if (!item) return;
+        const url = item.shareUrl || (window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(key));
+        if (navigator.share) {
+            navigator.share({ title: item.title || 'JARVIS Embed', text: 'Watch this', url: url }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(url).then(() => alert('Share link copied: ' + url)).catch(() => prompt('Copy:', url));
+        }
+    };
+
+    // ============================================================
+    // SHARED RENDERERS
+    // ============================================================
     function renderCard(item, key, isSharePage) {
         const shareUrl = item.shareUrl || (window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(key));
         const actions = isSharePage
@@ -491,6 +692,9 @@
         return `<iframe src="${escapeHtml(item.embedUrl)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>`;
     }
 
+    // ============================================================
+    // LINK ANALYSIS
+    // ============================================================
     async function analyzeInput(raw, mode) {
         if (mode === 'code' || /<[a-z]/i.test(raw)) return analyzeHtmlBlock(raw);
         if (!/^https?:\/\//i.test(raw)) return null;
@@ -498,13 +702,11 @@
     }
 
     async function buildEmbed(url) {
-        // 1. Direct media
         if (/\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url)) return { type: 'video', title: 'Video file', url, embedUrl: url, embedCode: '<video controls playsinline src="' + url + '" style="width:100%;"></video>' };
         if (/\.(mp3|wav|ogg|oga|m4a|aac|flac)(\?|$)/i.test(url)) return { type: 'audio', title: 'Audio file', url, embedUrl: url, embedCode: '<audio controls src="' + url + '" style="width:100%;"></audio>' };
         if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url)) return { type: 'image', title: 'Image', url, embedUrl: url, embedCode: '<img src="' + url + '" style="max-width:100%;">' };
         if (/\.pdf(\?|$)/i.test(url)) return { type: 'pdf', title: 'PDF', url, embedUrl: url, embedCode: '<iframe src="' + url + '" width="100%" height="600" style="border:0;"></iframe>' };
 
-        // 2. YouTube via Invidious fallback
         const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/)([A-Za-z0-9_-]{11})/);
         if (ytMatch) {
             const id = ytMatch[1];
@@ -512,8 +714,6 @@
                 embedUrl: 'https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0',
                 embedCode: '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>' };
         }
-
-        // 3. Vimeo
         const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
         if (vimeoMatch) {
             const id = vimeoMatch[1];
@@ -522,11 +722,9 @@
                 embedCode: '<iframe width="100%" height="400" src="https://player.vimeo.com/video/' + id + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>' };
         }
 
-        // 4. Official oEmbed endpoints
         const oembed = await tryOEmbed(url);
         if (oembed) return oembed;
 
-        // 5. TikTok fallback (even if oEmbed fails, still try the player URL)
         const tiktokMatch = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
         if (tiktokMatch) {
             const id = tiktokMatch[1];
@@ -535,7 +733,6 @@
                 embedCode: '<iframe height="578" width="325" src="' + embedUrl + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>' };
         }
 
-        // 6. Rich preview card fallback
         return await buildPreviewCard(url);
     }
 
@@ -551,7 +748,6 @@
             'https://www.reddit.com/oembed?url=',
             'https://www.pinterest.com/oembed.json?url='
         ];
-        // Meta's Instagram requires an access token; skip directly.
         for (const endpoint of endpoints) {
             try {
                 const res = await fetch(endpoint + encodeURIComponent(url), { method: 'GET' });
@@ -576,7 +772,7 @@
                         embedCode: data.html
                     };
                 }
-            } catch (e) { /* try next endpoint */ }
+            } catch (e) { }
         }
         return null;
     }
@@ -589,9 +785,7 @@
             const res = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url));
             if (res.ok) {
                 const data = await res.json();
-                if (data && data.data) {
-                    title = data.data.title || data.data.description || url;
-                }
+                if (data && data.data) title = data.data.title || data.data.description || url;
             }
         } catch (e) {}
         const embedCode = `<a href="${url}" target="_blank" rel="noopener" style="display:block;padding:16px;background:#0f172a;border:1px solid #1e293b;border-radius:10px;text-decoration:none;color:#e2e8f0;">

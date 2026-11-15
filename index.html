@@ -128,6 +128,8 @@
     .status.error { background: rgba(255,71,87,0.2); border: 1px solid #ff4757; color: #ff6b7a; display: block; }
     .status.success { background: rgba(74,255,122,0.15); border: 1px solid #4aff7a; color: #8fffa8; display: block; }
     .status.warning { background: rgba(212,175,55,0.15); border: 1px solid #d4af37; color: #f0d369; display: block; }
+
+    /* Editor embed card — unchanged */
     .embed-card {
         background: #0f172a;
         border: 1px solid #1e293b;
@@ -230,6 +232,10 @@
     }
     .top-bar h1 { margin-bottom: 0; }
     .top-bar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ============================================================
+       WATCH PAGE — padded aspect ratio (fixes the blank player bug)
+       ============================================================ */
     .watch-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -243,9 +249,67 @@
         display: flex;
         flex-direction: column;
     }
-    .watch-card .embed-preview {
-        border-radius: 0;
-        aspect-ratio: 16 / 9;
+    /* The container itself is the aspect box: width 100%, height 0,
+       padding-bottom 56.25% => guaranteed 16:9 regardless of grid. */
+    .watch-card .watch-preview {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%;
+        background: #000;
+        overflow: hidden;
+    }
+    /* Every child of the aspect box is absolutely positioned and
+       fills the padded area. This is the classic technique that always
+       works, even inside CSS grids or flex columns. */
+    .watch-card .watch-preview iframe,
+    .watch-card .watch-preview video,
+    .watch-card .watch-preview img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+        background: #000;
+    }
+    .watch-card .watch-preview img { object-fit: contain; }
+    .watch-card .watch-preview audio {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+    }
+    .watch-card .watch-preview .fallback-link {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: flex; align-items: center; justify-content: center;
+        color: #d4af37; text-decoration: none;
+        font-weight: 700; font-size: 14px;
+        padding: 20px; text-align: center; word-break: break-all;
+    }
+    .watch-card .watch-preview .preview-card {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 20px; gap: 10px; text-align: center;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+    }
+    .watch-card .watch-preview .preview-card img { width: 60px; height: 60px; object-fit: contain; }
+    .watch-card .watch-preview .preview-card .domain {
+        font-size: 11px; color: #94a3b8; text-transform: uppercase;
+        letter-spacing: 1px; font-weight: 700;
+    }
+    .watch-card .watch-preview .preview-card .title {
+        font-size: 14px; font-weight: 700; color: #e2e8f0;
+        max-width: 90%; line-height: 1.4;
+    }
+    .watch-card .watch-preview .preview-card .open-btn {
+        background: #d4af37; color: #0b2a4a;
+        padding: 8px 14px; border-radius: 6px;
+        text-decoration: none; font-weight: 800; font-size: 12px;
     }
     .watch-card .watch-info {
         padding: 14px;
@@ -322,9 +386,8 @@
     }, 100);
 
     let currentMode = 'url';
-    let viewMode = 'editor';   // 'editor' | 'watch' | 'share'
+    let viewMode = 'editor';
     let shareKey = null;
-    let watchSearchTerm = '';
 
     function boot() {
         const params = new URLSearchParams(window.location.search);
@@ -600,11 +663,10 @@
             return;
         }
         grid.innerHTML = items.map(item => {
-            const shareUrl = item.shareUrl || (window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(item.key));
             const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '';
             return `
                 <div class="watch-card">
-                    <div class="embed-preview">${renderPreview(item)}</div>
+                    <div class="watch-preview">${renderPreview(item)}</div>
                     <div class="watch-info">
                         <div class="watch-title">${escapeHtml(item.title || item.url || 'Untitled')}</div>
                         <div class="watch-meta">
@@ -622,11 +684,11 @@
     }
 
     window.filterWatchList = function(term) {
-        watchSearchTerm = (term || '').toLowerCase().trim();
-        if (!watchSearchTerm) return renderWatchGrid(allWatchItems);
+        const q = (term || '').toLowerCase().trim();
+        if (!q) return renderWatchGrid(allWatchItems);
         const filtered = allWatchItems.filter(item => {
             const hay = ((item.title || '') + ' ' + (item.url || '') + ' ' + (item.type || '')).toLowerCase();
-            return hay.indexOf(watchSearchTerm) !== -1;
+            return hay.indexOf(q) !== -1;
         });
         renderWatchGrid(filtered);
     };

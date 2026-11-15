@@ -129,7 +129,6 @@
     .status.success { background: rgba(74,255,122,0.15); border: 1px solid #4aff7a; color: #8fffa8; display: block; }
     .status.warning { background: rgba(212,175,55,0.15); border: 1px solid #d4af37; color: #f0d369; display: block; }
 
-    /* Editor embed card — unchanged */
     .embed-card {
         background: #0f172a;
         border: 1px solid #1e293b;
@@ -234,7 +233,7 @@
     .top-bar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
     /* ============================================================
-       WATCH PAGE — padded aspect ratio (fixes the blank player bug)
+       WATCH PAGE — padding-bottom aspect ratio (this is the fix)
        ============================================================ */
     .watch-grid {
         display: grid;
@@ -249,38 +248,32 @@
         display: flex;
         flex-direction: column;
     }
-    /* The container itself is the aspect box: width 100%, height 0,
-       padding-bottom 56.25% => guaranteed 16:9 regardless of grid. */
     .watch-card .watch-preview {
         position: relative;
         width: 100%;
         height: 0;
         padding-bottom: 56.25%;
-        background: #000;
         overflow: hidden;
-    }
-    /* Every child of the aspect box is absolutely positioned and
-       fills the padded area. This is the classic technique that always
-       works, even inside CSS grids or flex columns. */
-    .watch-card .watch-preview iframe,
-    .watch-card .watch-preview video,
-    .watch-card .watch-preview img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border: 0;
-        display: block;
         background: #000;
     }
-    .watch-card .watch-preview img { object-fit: contain; }
-    .watch-card .watch-preview audio {
-        position: absolute;
-        top: 50%;
-        left: 50%;
+    .watch-card .watch-preview > iframe,
+    .watch-card .watch-preview > video,
+    .watch-card .watch-preview > img {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        border: 0 !important;
+        display: block !important;
+    }
+    .watch-card .watch-preview > img { object-fit: contain; }
+    .watch-card .watch-preview > audio {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
         transform: translate(-50%, -50%);
-        width: 90%;
+        width: 90% !important;
     }
     .watch-card .watch-preview .fallback-link {
         position: absolute;
@@ -297,7 +290,7 @@
         padding: 20px; gap: 10px; text-align: center;
         background: linear-gradient(135deg, #0f172a, #1e293b);
     }
-    .watch-card .watch-preview .preview-card img { width: 60px; height: 60px; object-fit: contain; }
+    .watch-card .watch-preview .preview-card img { width: 60px !important; height: 60px !important; object-fit: contain; position: static !important; }
     .watch-card .watch-preview .preview-card .domain {
         font-size: 11px; color: #94a3b8; text-transform: uppercase;
         letter-spacing: 1px; font-weight: 700;
@@ -608,7 +601,7 @@
     }
 
     // ============================================================
-    // WATCH VIEW (public feed)
+    // WATCH VIEW
     // ============================================================
     function renderWatchView() {
         document.getElementById('appContainer').innerHTML = `

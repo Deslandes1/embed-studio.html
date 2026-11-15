@@ -144,8 +144,6 @@
         border-color: #4aff7a;
         box-shadow: 0 0 0 3px rgba(74,255,122,0.35);
     }
-
-    /* Editor preview — fixed aspect ratio using padding-bottom */
     .embed-preview {
         position: relative;
         width: 100%;
@@ -220,6 +218,150 @@
         border-radius: 6px; background: rgba(212,175,55,0.15);
         color: #d4af37; letter-spacing: 0.5px;
     }
+
+    /* NEW: Like + Comment bar */
+    .embed-social {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 10px 12px;
+        background: #071d33;
+        border-radius: 8px;
+        border: 1px solid #1e293b;
+    }
+    .like-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #1e293b;
+        color: #e2e8f0;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        font-family: inherit;
+    }
+    .like-btn:hover { background: #334155; }
+    .like-btn.liked { background: #d4af37; color: #0b2a4a; }
+    .like-btn:active { transform: scale(0.95); }
+    .like-btn .icon { font-size: 16px; }
+    .comment-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #1e293b;
+        color: #e2e8f0;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-family: inherit;
+    }
+    .comment-toggle-btn:hover { background: #334155; }
+    .edit-btn-sm {
+        background: #0d7a8c;
+        color: #fff;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-left: auto;
+        font-family: inherit;
+    }
+    .edit-btn-sm:hover { background: #0a6474; }
+
+    .comments-section {
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 12px;
+        background: #071d33;
+        border-radius: 8px;
+        border: 1px solid #1e293b;
+    }
+    .comments-section.open { display: flex; }
+    .comment-item {
+        background: #0f172a;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        border: 1px solid #1e293b;
+        word-break: break-word;
+    }
+    .comment-item .c-author {
+        color: #d4af37;
+        font-weight: 800;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+    .comment-item .c-time {
+        font-size: 11px;
+        color: #64748b;
+        margin-left: 6px;
+        font-weight: 500;
+    }
+    .comment-item .c-text {
+        color: #e2e8f0;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+    .comment-item .c-del {
+        background: transparent;
+        color: #ff4757;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        margin-top: 4px;
+        padding: 0;
+        font-family: inherit;
+    }
+    .comment-empty {
+        font-size: 13px;
+        color: #64748b;
+        text-align: center;
+        padding: 6px;
+    }
+    .comment-form-row {
+        display: flex;
+        gap: 6px;
+        align-items: stretch;
+    }
+    .comment-form-row input {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #1e293b;
+        background: #0f172a;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+        min-width: 0;
+    }
+    .comment-form-row input:focus { border-color: #d4af37; }
+    .comment-form-row button {
+        background: #0d7a8c;
+        color: #fff;
+        border: none;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-family: inherit;
+    }
+    .comment-form-row button:hover { background: #0a6474; }
+
     .embed-code {
         background: #000; color: #a5f3fc; padding: 12px;
         border-radius: 8px; font-family: monospace; font-size: 12px;
@@ -260,7 +402,6 @@
     .top-bar h1 { margin-bottom: 0; }
     .top-bar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    /* Watch page */
     .watch-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -377,6 +518,29 @@
         flex: 1;
         min-width: 90px;
     }
+    .watch-card .watch-social {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 10px 14px;
+        border-top: 1px solid #1e293b;
+        background: #071d33;
+    }
+    .watch-card .watch-social .like-btn,
+    .watch-card .watch-social .comment-toggle-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    .watch-card .watch-comments {
+        display: none;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px 14px;
+        border-top: 1px solid #1e293b;
+        background: #071d33;
+    }
+    .watch-card .watch-comments.open { display: flex; }
     .search-bar {
         width: 100%;
         max-width: 500px;
@@ -401,7 +565,7 @@
 <div class="container" id="appContainer"></div>
 
 <script type="module">
-    import { ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { ref, push, onValue, remove, get, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const wait = setInterval(() => {
         if (window._fb && window._fb.db) { clearInterval(wait); boot(); }
@@ -411,6 +575,27 @@
     let viewMode = 'editor';
     let shareKey = null;
     let justSavedKey = null;
+
+    const LIKE_STORAGE_KEY = 'jarvis_embed_likes';
+
+    function getLocalUser() {
+        let id = localStorage.getItem('jarvis_embed_uid');
+        if (!id) {
+            id = 'user_' + Math.random().toString(36).slice(2, 10);
+            localStorage.setItem('jarvis_embed_uid', id);
+        }
+        return id;
+    }
+
+    function getLocalLikes() {
+        try { return JSON.parse(localStorage.getItem(LIKE_STORAGE_KEY) || '{}'); } catch (e) { return {}; }
+    }
+    function setLocalLike(key, liked) {
+        const map = getLocalLikes();
+        map[key] = !!liked;
+        try { localStorage.setItem(LIKE_STORAGE_KEY, JSON.stringify(map)); } catch (e) {}
+    }
+    function isLocallyLiked(key) { return !!getLocalLikes()[key]; }
 
     function boot() {
         const params = new URLSearchParams(window.location.search);
@@ -433,7 +618,7 @@
                     <a href="?view=watch" class="btn secondary" style="text-decoration:none;">👁 View Watch Page</a>
                 </div>
             </div>
-            <p class="subtitle">Paste any link. Tap Convert &amp; Save — it saves to Firebase, appears on the Watch Page, and plays right here.</p>
+            <p class="subtitle">Paste any link. Tap Convert &amp; Save — it saves, plays, and appears on the Watch Page for all users. Like, comment, and edit below each video.</p>
 
             <div class="mode-toggle">
                 <button id="modeUrl" class="active" onclick="setMode('url')">🔗 Link</button>
@@ -448,7 +633,7 @@
             </div>
 
             <div class="hint">
-                Every embed you save appears instantly on the <a href="?view=watch" style="color:#d4af37;">Watch Page</a> — share that URL with your users so they can watch anytime.
+                Every embed you save appears instantly on the <a href="?view=watch" style="color:#d4af37;">Watch Page</a> — share that URL with your users so they can watch and interact anytime.
             </div>
 
             <div class="input-row">
@@ -513,6 +698,8 @@
                 embedCode: info.embedCode,
                 title: info.title,
                 shareUrl: shareUrl,
+                likes: 0,
+                comments: 0,
                 createdAt: Date.now()
             }).then(() => {
                 document.getElementById('urlInput').value = '';
@@ -545,20 +732,6 @@
                         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         card.classList.add('fresh');
                         setTimeout(() => card.classList.remove('fresh'), 2500);
-                        const playable = card.querySelector('video, iframe');
-                        if (playable) {
-                            try {
-                                if (playable.tagName === 'VIDEO') {
-                                    playable.muted = false;
-                                    playable.play().catch(() => {});
-                                } else if (playable.src.indexOf('youtube.com/embed/') !== -1) {
-                                    const sep = playable.src.indexOf('?') === -1 ? '?' : '&';
-                                    if (playable.src.indexOf('autoplay=1') === -1) {
-                                        playable.src = playable.src + sep + 'autoplay=1';
-                                    }
-                                }
-                            } catch (e) {}
-                        }
                     }
                 }, 150);
             }
@@ -616,6 +789,7 @@
                 return;
             }
             wrap.innerHTML = list.map(item => renderCard(item, item.key, false)).join('');
+            bindCommentFormHandlers();
         }
 
         function showStatus(msg, type) {
@@ -653,6 +827,7 @@
                 return;
             }
             area.innerHTML = renderCard(item, key, true);
+            bindCommentFormHandlers();
         } catch (e) {
             document.getElementById('shareEmbedArea').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load this embed.</div>';
         }
@@ -669,7 +844,7 @@
                     <a href="./" class="btn secondary" style="text-decoration:none;">✏️ Editor</a>
                 </div>
             </div>
-            <p class="subtitle">Every video shared on JARVIS. Plays right here — no redirects.</p>
+            <p class="subtitle">Every video shared on JARVIS. Plays right here. Like, comment, edit below each one.</p>
 
             <div class="search-bar">
                 <input id="watchSearch" type="text" placeholder="Search videos by title, platform, or domain…" oninput="filterWatchList(this.value)">
@@ -700,6 +875,7 @@
                 .map(k => ({ key: k, ...data[k] }))
                 .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             renderWatchGrid(allWatchItems);
+            bindCommentFormHandlers();
         }, (err) => {
             const grid = document.getElementById('watchGrid');
             if (grid) grid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Could not load videos. Check Firebase rules.</div>';
@@ -715,8 +891,11 @@
         }
         grid.innerHTML = items.map(item => {
             const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '';
+            const liked = isLocallyLiked(item.key);
+            const likes = item.likes || 0;
+            const commentCount = (item.comments && item.comments.details) ? Object.keys(item.comments.details).length : (typeof item.comments === 'number' ? item.comments : 0);
             return `
-                <div class="watch-card">
+                <div class="watch-card" id="watch-card-${item.key}">
                     <div class="watch-preview">${renderPreview(item)}</div>
                     <div class="watch-info">
                         <div class="watch-title">${escapeHtml(item.title || item.url || 'Untitled')}</div>
@@ -727,6 +906,19 @@
                         <div class="watch-actions">
                             <button class="btn share" onclick="watchCopyShare('${item.key}')">🔗 Share</button>
                             <button class="btn secondary" onclick="window.open('${escapeHtml(item.url)}','_blank')">Open</button>
+                        </div>
+                    </div>
+                    <div class="watch-social">
+                        <button class="like-btn${liked ? ' liked' : ''}" onclick="toggleLike('${item.key}')">
+                            <span class="icon">${liked ? '❤️' : '🤍'}</span> <span id="like-count-${item.key}">${likes}</span>
+                        </button>
+                        <button class="comment-toggle-btn" onclick="toggleComments('${item.key}')">💬 Comments</button>
+                    </div>
+                    <div class="watch-comments" id="comments-${item.key}">
+                        ${renderCommentsList(item.key, item.comments)}
+                        <div class="comment-form-row">
+                            <input type="text" id="comment-input-${item.key}" placeholder="Write a comment…" onkeydown="if(event.key==='Enter')submitComment('${item.key}')">
+                            <button onclick="submitComment('${item.key}')">Post</button>
                         </div>
                     </div>
                 </div>
@@ -742,6 +934,7 @@
             return hay.indexOf(q) !== -1;
         });
         renderWatchGrid(filtered);
+        bindCommentFormHandlers();
     };
 
     window.watchCopyShare = function(key) {
@@ -760,6 +953,9 @@
     // ============================================================
     function renderCard(item, key, isSharePage) {
         const shareUrl = item.shareUrl || (window.location.origin + window.location.pathname + '?embed=' + encodeURIComponent(key));
+        const liked = isLocallyLiked(key);
+        const likes = item.likes || 0;
+        const commentCount = (item.comments && item.comments.details) ? Object.keys(item.comments.details).length : (typeof item.comments === 'number' ? item.comments : 0);
         const actions = isSharePage
             ? `<button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('code-${key}').textContent).then(()=>alert('Embed code copied')).catch(()=>alert('Copy failed'))">Copy embed code</button>
                <button class="btn secondary" onclick="window.open('${escapeHtml(item.url)}','_blank')">Open original</button>`
@@ -773,10 +969,24 @@
         return `
             <div class="embed-card" id="card-${key}">
                 <div class="embed-header">
-                    <div class="embed-title">${escapeHtml(item.title || item.url || 'Untitled')}</div>
+                    <div class="embed-title" id="title-${key}">${escapeHtml(item.title || item.url || 'Untitled')}</div>
                     <div class="embed-type">${escapeHtml((item.type || '').toUpperCase())}</div>
                 </div>
                 <div class="embed-preview">${renderPreview(item)}</div>
+                <div class="embed-social">
+                    <button class="like-btn${liked ? ' liked' : ''}" onclick="toggleLike('${key}')">
+                        <span class="icon">${liked ? '❤️' : '🤍'}</span> <span id="like-count-${key}">${likes}</span>
+                    </button>
+                    <button class="comment-toggle-btn" onclick="toggleComments('${key}')">💬 ${commentCount} Comments</button>
+                    ${!isSharePage ? `<button class="edit-btn-sm" onclick="editTitle('${key}')">✏️ Edit title</button>` : ''}
+                </div>
+                <div class="comments-section" id="comments-${key}">
+                    ${renderCommentsList(key, item.comments)}
+                    <div class="comment-form-row">
+                        <input type="text" id="comment-input-${key}" placeholder="Write a comment…" onkeydown="if(event.key==='Enter')submitComment('${key}')">
+                        <button onclick="submitComment('${key}')">Post</button>
+                    </div>
+                </div>
                 <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Share link</div>
                 <div class="embed-share-url" id="share-${key}">${escapeHtml(shareUrl)}</div>
                 <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Embed code</div>
@@ -784,6 +994,19 @@
                 <div class="embed-actions">${actions}</div>
             </div>
         `;
+    }
+
+    function renderCommentsList(key, comments) {
+        const details = (comments && comments.details) ? comments.details : {};
+        const list = Object.keys(details).map(k => ({ id: k, ...details[k] })).sort((a, b) => (a.time || 0) - (b.time || 0));
+        if (!list.length) return '<div class="comment-empty">No comments yet. Be the first!</div>';
+        return list.map(c => `
+            <div class="comment-item">
+                <div class="c-author">@${escapeHtml(c.author || 'anon')}<span class="c-time">${c.time ? new Date(c.time).toLocaleString() : ''}</span></div>
+                <div class="c-text">${escapeHtml(c.text || '')}</div>
+                <button class="c-del" onclick="deleteComment('${key}','${c.id}')">Delete</button>
+            </div>
+        `).join('');
     }
 
     function renderPreview(item) {
@@ -802,7 +1025,6 @@
         if (item.type === 'video') return `<video controls autoplay muted playsinline src="${escapeHtml(item.embedUrl)}"></video>`;
         if (item.type === 'audio') return `<audio controls src="${escapeHtml(item.embedUrl)}"></audio>`;
         if (item.type === 'image') return `<img src="${escapeHtml(item.embedUrl)}" alt="">`;
-        // For iframe embeds (YouTube, TikTok, Vimeo), add autoplay param
         let src = item.embedUrl;
         if (src.indexOf('youtube.com/embed/') !== -1 && src.indexOf('autoplay=1') === -1) {
             src += (src.indexOf('?') === -1 ? '?' : '&') + 'autoplay=1';
@@ -812,6 +1034,112 @@
         return `<iframe src="${escapeHtml(src)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>`;
     }
 
+    // ============================================================
+    // LIKE + COMMENT + EDIT ACTIONS
+    // ============================================================
+    window.toggleLike = async function(key) {
+        const db = window._fb.db;
+        const docRef = ref(db, 'embed_studio/links/' + key);
+        try {
+            const snap = await get(docRef);
+            if (!snap.exists()) return;
+            const item = snap.val();
+            const currentlyLiked = isLocallyLiked(key);
+            const currentLikes = item.likes || 0;
+            const nextLikes = currentlyLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
+            await update(docRef, { likes: nextLikes });
+            setLocalLike(key, !currentlyLiked);
+
+            const btn = event && event.currentTarget ? event.currentTarget : null;
+            if (btn) btn.classList.toggle('liked', !currentlyLiked);
+            const iconEl = btn ? btn.querySelector('.icon') : null;
+            if (iconEl) iconEl.textContent = !currentlyLiked ? '❤️' : '🤍';
+            const countEl = document.getElementById('like-count-' + key);
+            if (countEl) countEl.textContent = nextLikes;
+        } catch (e) {
+            alert('Could not update like: ' + (e.message || 'unknown'));
+        }
+    };
+
+    window.toggleComments = function(key) {
+        const el = document.getElementById('comments-' + key);
+        if (!el) return;
+        el.classList.toggle('open');
+        if (el.classList.contains('open')) {
+            const inp = document.getElementById('comment-input-' + key);
+            if (inp) setTimeout(() => inp.focus(), 80);
+        }
+    };
+
+    window.submitComment = async function(key) {
+        const inp = document.getElementById('comment-input-' + key);
+        if (!inp) return;
+        const text = (inp.value || '').trim();
+        if (!text) return;
+        inp.value = '';
+        const db = window._fb.db;
+        const docRef = ref(db, 'embed_studio/links/' + key);
+        try {
+            const snap = await get(docRef);
+            if (!snap.exists()) return;
+            const item = snap.val();
+            let commentsObj = item.comments;
+            if (!commentsObj || typeof commentsObj !== 'object' || !commentsObj.details) {
+                commentsObj = { details: {} };
+            }
+            const commentId = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+            commentsObj.details[commentId] = {
+                author: getLocalUser(),
+                text: text,
+                time: Date.now()
+            };
+            await update(docRef, { comments: commentsObj });
+        } catch (e) {
+            alert('Could not post comment: ' + (e.message || 'unknown'));
+        }
+    };
+
+    window.deleteComment = async function(key, commentId) {
+        if (!confirm('Delete this comment?')) return;
+        const db = window._fb.db;
+        const docRef = ref(db, 'embed_studio/links/' + key);
+        try {
+            const snap = await get(docRef);
+            if (!snap.exists()) return;
+            const item = snap.val();
+            if (!item.comments || !item.comments.details) return;
+            delete item.comments.details[commentId];
+            await update(docRef, { comments: item.comments });
+        } catch (e) {
+            alert('Could not delete comment: ' + (e.message || 'unknown'));
+        }
+    };
+
+    window.editTitle = async function(key) {
+        const titleEl = document.getElementById('title-' + key);
+        if (!titleEl) return;
+        const current = titleEl.textContent || '';
+        const newTitle = prompt('Edit title:', current);
+        if (newTitle === null) return;
+        const trimmed = newTitle.trim();
+        if (!trimmed) return alert('Title cannot be empty.');
+        const db = window._fb.db;
+        const docRef = ref(db, 'embed_studio/links/' + key);
+        try {
+            await update(docRef, { title: trimmed });
+            titleEl.textContent = trimmed;
+        } catch (e) {
+            alert('Could not update title: ' + (e.message || 'unknown'));
+        }
+    };
+
+    function bindCommentFormHandlers() {
+        // no-op helper kept for clarity
+    }
+
+    // ============================================================
+    // LINK ANALYSIS (unchanged)
+    // ============================================================
     async function analyzeInput(raw, mode) {
         if (mode === 'code' || /<[a-z]/i.test(raw)) return analyzeHtmlBlock(raw);
         if (!/^https?:\/\//i.test(raw)) return null;

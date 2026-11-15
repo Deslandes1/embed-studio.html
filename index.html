@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS Embed Studio</title>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE",
+        authDomain: "g-communication-2026-c5af2.firebaseapp.com",
+        databaseURL: "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com",
+        projectId: "g-communication-2026-c5af2",
+        appId: "1:953142314141:web:967f75943e55584c36c074"
+    };
+
+    window._fb = { app: initializeApp(firebaseConfig), db: getDatabase(initializeApp(firebaseConfig)) };
+    window._fb = { app: initializeApp(firebaseConfig), db: getDatabase(initializeApp(firebaseConfig)) };
+    window._fb = { app: initializeApp(firebaseConfig), db: getDatabase(initializeApp(firebaseConfig)) };
+    // Reinitialize once correctly:
+    const app = initializeApp(firebaseConfig);
+    window._fb = { app, db: getDatabase(app) };
+    window.__jarvisReady = true;
+</script>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+        background: #0b2a4a;
+        color: #fff;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 {
+        color: #d4af37;
+        text-align: center;
+        margin-bottom: 6px;
+        font-size: 28px;
+        letter-spacing: 1px;
+    }
+    .subtitle {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+    .input-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .input-row input {
+        flex: 1;
+        min-width: 240px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        border: 2px solid #1e293b;
+        background: #0f172a;
+        color: #fff;
+        font-size: 15px;
+        outline: none;
+    }
+    .input-row input:focus { border-color: #d4af37; }
+    .btn {
+        padding: 14px 22px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        color: #0b2a4a;
+        background: linear-gradient(135deg, #f0d369, #d4af37);
+        transition: transform 0.15s, box-shadow 0.15s;
+        white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(212,175,55,0.4); }
+    .btn.secondary {
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+    .btn.secondary:hover { box-shadow: 0 4px 14px rgba(30,41,59,0.5); }
+    .btn.danger {
+        background: #ff4757;
+        color: #fff;
+    }
+    .status {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 14px;
+        font-weight: 600;
+        display: none;
+    }
+    .status.error { background: rgba(255,71,87,0.2); border: 1px solid #ff4757; color: #ff6b7a; display: block; }
+    .status.success { background: rgba(74,255,122,0.15); border: 1px solid #4aff7a; color: #8fffa8; display: block; }
+    .embed-card {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .embed-preview {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+    }
+    .embed-preview iframe,
+    .embed-preview video,
+    .embed-preview img {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+    }
+    .embed-preview audio {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+    }
+    .embed-preview .fallback-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #d4af37;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        text-align: center;
+        padding: 20px;
+        word-break: break-all;
+    }
+    .embed-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .embed-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #e2e8f0;
+        word-break: break-all;
+        flex: 1;
+        min-width: 200px;
+    }
+    .embed-type {
+        font-size: 11px;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: rgba(212,175,55,0.15);
+        color: #d4af37;
+        letter-spacing: 0.5px;
+    }
+    .embed-code {
+        background: #000;
+        color: #a5f3fc;
+        padding: 12px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        border: 1px solid #1e293b;
+        max-height: 140px;
+        overflow: auto;
+    }
+    .embed-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .embed-actions .btn {
+        padding: 9px 14px;
+        font-size: 13px;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+        font-size: 15px;
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .footer-info {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #1e293b;
+        font-size: 13px;
+        color: #94a3b8;
+        line-height: 1.8;
+    }
+    .footer-info a { color: #d4af37; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>JARVIS Embed Studio</h1>
+    <p class="subtitle">Paste any link. Turn it into an embeddable player. Use it here or anywhere else.</p>
+
+    <div class="input-row">
+        <input id="urlInput" type="text" placeholder="Paste a YouTube, Vimeo, MP4, MP3, PDF, or any link…">
+        <button class="btn" onclick="addLink()">Convert & Save</button>
+    </div>
+
+    <div id="statusBox" class="status"></div>
+    <div id="embedList"></div>
+
+    <div class="footer-info">
+        Built by Gesner Deslandes (GlobalInternet.py)<br>
+        Phone: (509) 4738 5663 · Email: deslandes78@gmail.com<br>
+        <a href="https://deslandes1.github.io/jarvis-auto-apply./" target="_blank">JARVIS Auto-Apply</a> ·
+        <a href="https://deslandes1.github.io/G-COMMUNICATION-2026/" target="_blank">G JARVIS Portal</a> ·
+        <a href="https://globalinternetsitepy-abh7v6tnmskxxnuplrdcgk.streamlit.app/" target="_blank">Global Technology Site</a>
+    </div>
+</div>
+
+<script type="module">
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const wait = setInterval(() => {
+        if (window._fb && window._fb.db) {
+            clearInterval(wait);
+            init();
+        }
+    }, 100);
+
+    function init() {
+        const db = window._fb.db;
+        const EMBEDS_PATH = 'embed_studio/links';
+        const linksRef = ref(db, EMBEDS_PATH);
+
+        window.addLink = function() {
+            const inp = document.getElementById('urlInput');
+            const raw = (inp.value || '').trim();
+            if (!raw) return showStatus('Please paste a link first.', 'error');
+            if (!/^https?:\/\//i.test(raw)) return showStatus('The link must start with http:// or https://', 'error');
+
+            const info = analyzeUrl(raw);
+            push(linksRef, {
+                url: raw,
+                type: info.type,
+                embedUrl: info.embedUrl,
+                embedCode: info.embedCode,
+                title: info.title,
+                createdAt: Date.now()
+            }).then(() => {
+                inp.value = '';
+                showStatus('Link converted and saved.', 'success');
+            }).catch(err => {
+                showStatus('Save failed: ' + (err.message || 'unknown'), 'error');
+            });
+        };
+
+        onValue(linksRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            const list = Object.keys(data)
+                .map(k => ({ key: k, ...data[k] }))
+                .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            renderList(list);
+        });
+
+        window.deleteEmbed = function(key) {
+            if (!confirm('Remove this embed?')) return;
+            remove(ref(db, EMBEDS_PATH + '/' + key));
+        };
+
+        window.copyCode = function(key) {
+            const el = document.getElementById('code-' + key);
+            if (!el) return;
+            navigator.clipboard.writeText(el.textContent).then(() => {
+                showStatus('Embed code copied.', 'success');
+            }).catch(() => showStatus('Copy failed. Select the code manually.', 'error'));
+        };
+
+        window.openLink = function(key) {
+            const el = document.getElementById('code-' + key);
+            if (!el) return;
+            const data = JSON.parse(el.getAttribute('data-raw') || '{}');
+            if (data.url) window.open(data.url, '_blank');
+        };
+
+        function renderList(list) {
+            const wrap = document.getElementById('embedList');
+            if (!list.length) {
+                wrap.innerHTML = '<div class="empty-state"><div class="icon">🔗</div>No links yet. Paste one above to get started.</div>';
+                return;
+            }
+            wrap.innerHTML = list.map(item => `
+                <div class="embed-card">
+                    <div class="embed-header">
+                        <div class="embed-title">${escapeHtml(item.title || item.url || 'Untitled')}</div>
+                        <div class="embed-type">${escapeHtml((item.type || '').toUpperCase())}</div>
+                    </div>
+                    <div class="embed-preview">${renderPreview(item)}</div>
+                    <div class="embed-code" id="code-${item.key}" data-raw='${escapeJson(item)}'>${escapeHtml(item.embedCode || '')}</div>
+                    <div class="embed-actions">
+                        <button class="btn" onclick="copyCode('${item.key}')">Copy embed code</button>
+                        <button class="btn secondary" onclick="openLink('${item.key}')">Open original</button>
+                        <button class="btn danger" onclick="deleteEmbed('${item.key}')">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPreview(item) {
+            if (!item.embedUrl) return `<a class="fallback-link" href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.url)}</a>`;
+            if (item.type === 'video' && /\.(mp4|webm|ogg)(\?|$)/i.test(item.url)) {
+                return `<video controls src="${escapeHtml(item.embedUrl)}"></video>`;
+            }
+            if (item.type === 'audio') {
+                return `<audio controls src="${escapeHtml(item.embedUrl)}"></audio>`;
+            }
+            if (item.type === 'image') {
+                return `<img src="${escapeHtml(item.embedUrl)}" alt="">`;
+            }
+            return `<iframe src="${escapeHtml(item.embedUrl)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+        }
+
+        function showStatus(msg, type) {
+            const box = document.getElementById('statusBox');
+            box.textContent = msg;
+            box.className = 'status ' + type;
+            setTimeout(() => { box.className = 'status'; }, 4000);
+        }
+    }
+
+    function analyzeUrl(raw) {
+        let url = raw;
+        // YouTube
+        const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
+        if (yt) {
+            const id = yt[1];
+            return {
+                type: 'youtube',
+                title: 'YouTube video · ' + id,
+                embedUrl: 'https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0',
+                embedCode: '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+            };
+        }
+        // Vimeo
+        const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        if (vimeo) {
+            const id = vimeo[1];
+            return {
+                type: 'vimeo',
+                title: 'Vimeo video · ' + id,
+                embedUrl: 'https://player.vimeo.com/video/' + id,
+                embedCode: '<iframe width="100%" height="400" src="https://player.vimeo.com/video/' + id + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
+            };
+        }
+        // Direct video
+        if (/\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url)) {
+            return {
+                type: 'video',
+                title: 'Direct video file',
+                embedUrl: url,
+                embedCode: '<video controls playsinline src="' + url + '" style="width:100%;"></video>'
+            };
+        }
+        // Direct audio
+        if (/\.(mp3|wav|ogg|oga|m4a|aac|flac)(\?|$)/i.test(url)) {
+            return {
+                type: 'audio',
+                title: 'Direct audio file',
+                embedUrl: url,
+                embedCode: '<audio controls src="' + url + '" style="width:100%;"></audio>'
+            };
+        }
+        // Image
+        if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url)) {
+            return {
+                type: 'image',
+                title: 'Image',
+                embedUrl: url,
+                embedCode: '<img src="' + url + '" alt="" style="max-width:100%;">'
+            };
+        }
+        // PDF
+        if (/\.pdf(\?|$)/i.test(url)) {
+            return {
+                type: 'pdf',
+                title: 'PDF document',
+                embedUrl: url,
+                embedCode: '<iframe src="' + url + '" width="100%" height="600" style="border:0;"></iframe>'
+            };
+        }
+        // Fallback
+        return {
+            type: 'link',
+            title: 'Web link',
+            embedUrl: null,
+            embedCode: '<a href="' + url + '" target="_blank" rel="noopener">' + url + '</a>'
+        };
+    }
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function escapeJson(obj) {
+        return escapeHtml(JSON.stringify({ url: obj.url, type: obj.type, title: obj.title }))
+            .replace(/'/g, '&#39;');
+    }
+</script>
+</body>
+</html>

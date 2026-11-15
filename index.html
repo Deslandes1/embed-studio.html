@@ -6,7 +6,7 @@
 <title>JARVIS Embed Studio</title>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE",
@@ -16,10 +16,6 @@
         appId: "1:953142314141:web:967f75943e55584c36c074"
     };
 
-    window._fb = { app: initializeApp(firebaseConfig), db: getDatabase(initializeApp(firebaseConfig)) };
-    window._fb = { app: initializeApp(firebaseConfig), db: getDatabase(initializeApp(firebaseConfig)) };
-    window._fb = { app: initializeApp(firebaseConfig), db: getDatabase(initializeApp(firebaseConfig)) };
-    // Reinitialize once correctly:
     const app = initializeApp(firebaseConfig);
     window._fb = { app, db: getDatabase(app) };
     window.__jarvisReady = true;
@@ -46,14 +42,17 @@
         color: #94a3b8;
         font-size: 14px;
         margin-bottom: 24px;
+        line-height: 1.5;
+        padding: 0 10px;
     }
     .input-row {
         display: flex;
         gap: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
         flex-wrap: wrap;
     }
-    .input-row input {
+    .input-row input,
+    .input-row textarea {
         flex: 1;
         min-width: 240px;
         padding: 14px 16px;
@@ -63,8 +62,16 @@
         color: #fff;
         font-size: 15px;
         outline: none;
+        font-family: inherit;
     }
-    .input-row input:focus { border-color: #d4af37; }
+    .input-row textarea {
+        min-height: 110px;
+        resize: vertical;
+        font-family: monospace;
+        font-size: 13px;
+    }
+    .input-row input:focus,
+    .input-row textarea:focus { border-color: #d4af37; }
     .btn {
         padding: 14px 22px;
         border-radius: 10px;
@@ -78,14 +85,33 @@
         white-space: nowrap;
     }
     .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(212,175,55,0.4); }
-    .btn.secondary {
-        background: #1e293b;
-        color: #e2e8f0;
-    }
+    .btn.secondary { background: #1e293b; color: #e2e8f0; }
     .btn.secondary:hover { box-shadow: 0 4px 14px rgba(30,41,59,0.5); }
-    .btn.danger {
-        background: #ff4757;
-        color: #fff;
+    .btn.danger { background: #ff4757; color: #fff; }
+    .mode-toggle {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 6px;
+        width: fit-content;
+    }
+    .mode-toggle button {
+        background: transparent;
+        color: #94a3b8;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+    }
+    .mode-toggle button.active {
+        background: #d4af37;
+        color: #0b2a4a;
     }
     .status {
         padding: 12px 16px;
@@ -114,19 +140,28 @@
         border-radius: 8px;
         overflow: hidden;
         position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .embed-preview iframe,
-    .embed-preview video,
-    .embed-preview img {
+    .embed-preview iframe {
         width: 100%;
         height: 100%;
         border: 0;
         display: block;
     }
+    .embed-preview video {
+        width: 100%;
+        height: 100%;
+        display: block;
+        background: #000;
+    }
+    .embed-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+    }
     .embed-preview audio {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
         width: 90%;
     }
     .embed-preview .fallback-link {
@@ -176,7 +211,7 @@
         white-space: pre-wrap;
         word-break: break-all;
         border: 1px solid #1e293b;
-        max-height: 140px;
+        max-height: 160px;
         overflow: auto;
     }
     .embed-actions {
@@ -205,16 +240,39 @@
         line-height: 1.8;
     }
     .footer-info a { color: #d4af37; text-decoration: none; }
+    .hint {
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 16px;
+        line-height: 1.6;
+        padding: 0 4px;
+    }
 </style>
 </head>
 <body>
 <div class="container">
     <h1>JARVIS Embed Studio</h1>
-    <p class="subtitle">Paste any link. Turn it into an embeddable player. Use it here or anywhere else.</p>
+    <p class="subtitle">Paste a link, or paste a full iframe/video/audio HTML block. Everything becomes an embeddable player you can use here or anywhere else.</p>
+
+    <div class="mode-toggle">
+        <button id="modeUrl" class="active" onclick="setMode('url')">🔗 Link</button>
+        <button id="modeCode" onclick="setMode('code')">&lt;/&gt; HTML code</button>
+    </div>
+
+    <div class="input-row" id="rowUrl">
+        <input id="urlInput" type="text" placeholder="Paste a YouTube, Vimeo, TikTok, MP4, MP3, PDF, or any link…">
+    </div>
+    <div class="input-row" id="rowCode" style="display:none;">
+        <textarea id="codeInput" placeholder='Paste a full iframe, video, audio, or img HTML block. Example:
+<iframe src="https://www.tiktok.com/player/v1/7698056345127374113" ...></iframe>'></textarea>
+    </div>
+
+    <div class="hint">
+        Tip: For TikTok, either paste the full TikTok iframe code, or paste a TikTok video link — the app converts it automatically to the TikTok player embed.
+    </div>
 
     <div class="input-row">
-        <input id="urlInput" type="text" placeholder="Paste a YouTube, Vimeo, MP4, MP3, PDF, or any link…">
-        <button class="btn" onclick="addLink()">Convert & Save</button>
+        <button class="btn" onclick="addLink()">Convert &amp; Save</button>
     </div>
 
     <div id="statusBox" class="status"></div>
@@ -230,7 +288,7 @@
 </div>
 
 <script type="module">
-    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const wait = setInterval(() => {
         if (window._fb && window._fb.db) {
@@ -239,28 +297,45 @@
         }
     }, 100);
 
+    let currentMode = 'url';
+
+    window.setMode = function(mode) {
+        currentMode = mode;
+        document.getElementById('modeUrl').classList.toggle('active', mode === 'url');
+        document.getElementById('modeCode').classList.toggle('active', mode === 'code');
+        document.getElementById('rowUrl').style.display = mode === 'url' ? 'flex' : 'none';
+        document.getElementById('rowCode').style.display = mode === 'code' ? 'flex' : 'none';
+    };
+
     function init() {
         const db = window._fb.db;
         const EMBEDS_PATH = 'embed_studio/links';
         const linksRef = ref(db, EMBEDS_PATH);
 
         window.addLink = function() {
-            const inp = document.getElementById('urlInput');
-            const raw = (inp.value || '').trim();
-            if (!raw) return showStatus('Please paste a link first.', 'error');
-            if (!/^https?:\/\//i.test(raw)) return showStatus('The link must start with http:// or https://', 'error');
+            let raw = '';
+            if (currentMode === 'url') {
+                raw = (document.getElementById('urlInput').value || '').trim();
+            } else {
+                raw = (document.getElementById('codeInput').value || '').trim();
+            }
 
-            const info = analyzeUrl(raw);
+            if (!raw) return showStatus('Please paste a link or an HTML block first.', 'error');
+
+            const info = analyzeInput(raw, currentMode);
+            if (!info) return showStatus('Could not understand this input. Paste a https:// link or a full iframe/video/audio HTML block.', 'error');
+
             push(linksRef, {
-                url: raw,
+                url: info.url,
                 type: info.type,
                 embedUrl: info.embedUrl,
                 embedCode: info.embedCode,
                 title: info.title,
                 createdAt: Date.now()
             }).then(() => {
-                inp.value = '';
-                showStatus('Link converted and saved.', 'success');
+                document.getElementById('urlInput').value = '';
+                document.getElementById('codeInput').value = '';
+                showStatus('Saved. Preview below.', 'success');
             }).catch(err => {
                 showStatus('Save failed: ' + (err.message || 'unknown'), 'error');
             });
@@ -283,7 +358,7 @@
             const el = document.getElementById('code-' + key);
             if (!el) return;
             navigator.clipboard.writeText(el.textContent).then(() => {
-                showStatus('Embed code copied.', 'success');
+                showStatus('Embed code copied. Paste it into your chat, wall, or website.', 'success');
             }).catch(() => showStatus('Copy failed. Select the code manually.', 'error'));
         };
 
@@ -297,7 +372,7 @@
         function renderList(list) {
             const wrap = document.getElementById('embedList');
             if (!list.length) {
-                wrap.innerHTML = '<div class="empty-state"><div class="icon">🔗</div>No links yet. Paste one above to get started.</div>';
+                wrap.innerHTML = '<div class="empty-state"><div class="icon">🔗</div>No embeds yet. Paste a link or an HTML block above to get started.</div>';
                 return;
             }
             wrap.innerHTML = list.map(item => `
@@ -318,8 +393,13 @@
         }
 
         function renderPreview(item) {
-            if (!item.embedUrl) return `<a class="fallback-link" href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.url)}</a>`;
-            if (item.type === 'video' && /\.(mp4|webm|ogg)(\?|$)/i.test(item.url)) {
+            if (item.type === 'html') {
+                return item.embedCode;
+            }
+            if (!item.embedUrl) {
+                return `<a class="fallback-link" href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.url)}</a>`;
+            }
+            if (item.type === 'video') {
                 return `<video controls src="${escapeHtml(item.embedUrl)}"></video>`;
             }
             if (item.type === 'audio') {
@@ -339,15 +419,25 @@
         }
     }
 
-    function analyzeUrl(raw) {
-        let url = raw;
+    function analyzeInput(raw, mode) {
+        // If user pasted HTML code (iframe / video / audio / img)
+        if (mode === 'code' || /<[a-z]/i.test(raw)) {
+            return analyzeHtmlBlock(raw);
+        }
+
+        // Otherwise treat as a URL
+        if (!/^https?:\/\//i.test(raw)) return null;
+
+        const url = raw;
+
         // YouTube
-        const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
+        const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/)([A-Za-z0-9_-]{11})/);
         if (yt) {
             const id = yt[1];
             return {
                 type: 'youtube',
                 title: 'YouTube video · ' + id,
+                url: url,
                 embedUrl: 'https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0',
                 embedCode: '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
             };
@@ -359,8 +449,22 @@
             return {
                 type: 'vimeo',
                 title: 'Vimeo video · ' + id,
+                url: url,
                 embedUrl: 'https://player.vimeo.com/video/' + id,
                 embedCode: '<iframe width="100%" height="400" src="https://player.vimeo.com/video/' + id + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
+            };
+        }
+        // TikTok — convert a normal TikTok video URL to the player embed
+        const tiktok = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+        if (tiktok) {
+            const id = tiktok[1];
+            const embedUrl = 'https://www.tiktok.com/player/v1/' + id + '?embed_from=webapp_share&music_info=1&description=1&autoplay=1&muted=1';
+            return {
+                type: 'tiktok',
+                title: 'TikTok video · ' + id,
+                url: url,
+                embedUrl: embedUrl,
+                embedCode: '<iframe height="578" width="325" src="' + embedUrl + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>'
             };
         }
         // Direct video
@@ -368,6 +472,7 @@
             return {
                 type: 'video',
                 title: 'Direct video file',
+                url: url,
                 embedUrl: url,
                 embedCode: '<video controls playsinline src="' + url + '" style="width:100%;"></video>'
             };
@@ -377,6 +482,7 @@
             return {
                 type: 'audio',
                 title: 'Direct audio file',
+                url: url,
                 embedUrl: url,
                 embedCode: '<audio controls src="' + url + '" style="width:100%;"></audio>'
             };
@@ -386,6 +492,7 @@
             return {
                 type: 'image',
                 title: 'Image',
+                url: url,
                 embedUrl: url,
                 embedCode: '<img src="' + url + '" alt="" style="max-width:100%;">'
             };
@@ -395,17 +502,53 @@
             return {
                 type: 'pdf',
                 title: 'PDF document',
+                url: url,
                 embedUrl: url,
                 embedCode: '<iframe src="' + url + '" width="100%" height="600" style="border:0;"></iframe>'
             };
         }
-        // Fallback
+        // Fallback generic
         return {
             type: 'link',
             title: 'Web link',
+            url: url,
             embedUrl: null,
             embedCode: '<a href="' + url + '" target="_blank" rel="noopener">' + url + '</a>'
         };
+    }
+
+    function analyzeHtmlBlock(raw) {
+        const html = raw.trim();
+        // Extract src from iframe/video/audio/img
+        const iframeMatch = html.match(/<iframe[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
+        const videoMatch = html.match(/<video[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
+        const audioMatch = html.match(/<audio[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
+        const imgMatch = html.match(/<img[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
+        const sourceMatch = html.match(/<source[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
+
+        const src = (iframeMatch && iframeMatch[1]) || (videoMatch && videoMatch[1]) || (audioMatch && audioMatch[1]) || (imgMatch && imgMatch[1]) || (sourceMatch && sourceMatch[1]);
+
+        if (!src) return null;
+        if (!/^https?:\/\//i.test(src)) return null;
+
+        let type = 'html';
+        if (/tiktok\.com/i.test(src)) type = 'tiktok';
+        else if (/youtube\.com\/embed|youtu\.be/i.test(src)) type = 'youtube';
+        else if (/player\.vimeo\.com/i.test(src)) type = 'vimeo';
+        else if (iframeMatch) type = 'iframe';
+
+        return {
+            type: type,
+            title: extractTitle(html) || src,
+            url: src,
+            embedUrl: src,
+            embedCode: html
+        };
+    }
+
+    function extractTitle(html) {
+        const m = html.match(/\btitle\s*=\s*["']([^"']+)["']/i);
+        return m ? m[1] : '';
     }
 
     function escapeHtml(s) {
